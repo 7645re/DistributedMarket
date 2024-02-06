@@ -1,0 +1,53 @@
+﻿networks:
+  Catalog.API:
+    driver: bridge
+
+services:
+  catalog.database:
+    container_name: Catalog.Database
+    image: mcr.microsoft.com/mssql/server:latest
+    networks:
+      - Catalog.API
+    environment:
+      SA_PASSWORD: "NotWeakPassword123"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s 
+      retries: 10
+      start_period: 10s
+    ports: 
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/lib/mssql/data
+
+  catalog.migrator:
+    container_name: Catalog.Migrator
+    build:
+      context: .
+      dockerfile: Catalog.Migrator/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+    networks: 
+      - Catalog.API
+    depends_on: 
+      catalog.database:
+        condition: service_healthy
+
+  catalog.api:
+    container_name: Catalog.API
+    build:
+      context: .
+      dockerfile: Catalog.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+    ports:
+      - "80:80"
+    networks:
+      - Catalog.API
+    depends_on: 
+      - catalog.migrator
+
+volumes:
+  mssql-data:
