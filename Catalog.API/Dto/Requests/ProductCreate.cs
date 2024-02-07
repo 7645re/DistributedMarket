@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Catalog.API.Dto.Requests.Category;
 
 namespace Catalog.API.Dto.Requests;
 
@@ -14,5 +15,5 @@ public class ProductCreate
     public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("categories")]
-    public ICollection<CategoryCreate> Categories { get; set; } = ArraySegment<CategoryCreate>.Empty;
+    public ICollection<int> Categories { get; set; } = ArraySegment<int>.Empty;
 }

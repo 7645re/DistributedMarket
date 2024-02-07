@@ -1,4 +1,5 @@
 using Catalog.API.Dto.Requests;
+using Catalog.API.Dto.Requests.Category;
 using Catalog.Domain.Dto;
 
 namespace Catalog.API.Mappers;
@@ -16,16 +17,11 @@ public static class ProductMapper
         };
     }
 
-    public static Category ToCategory(this CategoryCreate categoryCreate)
+    public static IEnumerable<Category> ToCategories(this IEnumerable<int> categoriesIds)
     {
-        return new Category
+        return categoriesIds.Select(ci => new Category
         {
-            Name = categoryCreate.Name
-        };
-    }
-
-    public static IEnumerable<Category> ToCategories(this IEnumerable<CategoryCreate> categoryCreates)
-    {
-        return categoryCreates.Select(cc => cc.ToCategory());
+            Id = ci,
+        });
     }
 }

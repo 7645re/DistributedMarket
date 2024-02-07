@@ -23,6 +23,7 @@ public static class CategoryMapper
     {
         return new CategoryEntity
         {
+            Id = category.Id,
             Name = category.Name
         };
     }

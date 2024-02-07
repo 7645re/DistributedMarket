@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Domain.Repositories.ProductCategoryRepository;
 
-public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEntity>, IProductCategoryRepository
+public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEntity>,
+    IProductCategoryRepository
 {
     public ProductCategoryRepository(CatalogDbContext context) : base(context)
     {
@@ -18,5 +19,12 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
             .AsNoTracking()
             .Where(pc => pc.CategoryId == id)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task CreateProductsCategoriesAsync(
+        IEnumerable<ProductEntityCategoryEntity> productEntityCategoryEntities,
+        CancellationToken cancellationToken)
+    {
+        await Set.AddRangeAsync(productEntityCategoryEntities, cancellationToken);
     }
 }

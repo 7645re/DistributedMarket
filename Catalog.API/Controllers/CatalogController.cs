@@ -1,4 +1,5 @@
 using Catalog.API.Dto.Requests;
+using Catalog.API.Dto.Requests.Category;
 using Catalog.API.Mappers;
 using Catalog.Domain.Services.CategoryService;
 using Catalog.Domain.Services.ProductService;
@@ -23,12 +24,14 @@ public class CatalogController : ControllerBase
     }
 
     [HttpGet("products")]
-    public async Task<IActionResult> GetProducts([FromQuery] int? categoryId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] int? categoryId,
+        CancellationToken cancellationToken)
     {
         if (categoryId is not null)
         {
             var productsByCategory = await _productService
-                .GetProductsByCategoryIdAsync((int) categoryId, cancellationToken);
+                .GetProductsByCategoryIdAsync(categoryId.Value, cancellationToken);
             return Ok(productsByCategory);
         }
 
@@ -37,24 +40,10 @@ public class CatalogController : ControllerBase
     }
 
     [HttpGet("products/{id:int}")]
-    public async Task<IActionResult> GetProduct(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
     {
         var products = await _productService.GetProductWithCategoriesAsync(id, cancellationToken);
         return Ok(products);
-    }
-
-    [HttpGet("categories")]
-    public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
-    {
-        var categories = await _categoryService.GetCategoriesAsync(cancellationToken);
-        return Ok(categories);
-    }
-    
-    [HttpGet("categories/{id:int}")]
-    public async Task<IActionResult> GetCategoryById(int id, CancellationToken cancellationToken)
-    {
-        var categories = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
-        return Ok(categories);
     }
 
     [HttpPost("products")]
@@ -72,6 +61,56 @@ public class CatalogController : ControllerBase
         CancellationToken cancellationToken)
     {
         await _productService.DeleteProductByIdAsync(id, cancellationToken);
+        return Ok();
+    }
+    
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
+    {
+        var categories = await _categoryService.GetCategoriesAsync(cancellationToken);
+        return Ok(categories);
+    }
+    
+    [HttpGet("categories/{id:int}")]
+    public async Task<IActionResult> GetCategoryById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var categories = await _categoryService.GetCategoryByIdAsync(
+            id,
+            cancellationToken);
+        return Ok(categories);
+    }
+
+    [HttpPost("categories")]
+    public async Task<IActionResult> CreateCategory(
+        [FromBody] CategoryCreate categoryCreate,
+        CancellationToken cancellationToken)
+    {
+        var category = await _categoryService.CreateCategoryAsync(
+            categoryCreate.ToCategory(),
+            cancellationToken);
+        return Ok(category);
+    }
+    
+    [HttpPatch("categories/{id:int}")]
+    public async Task<IActionResult> UpdateCategoryById(
+        int id,
+        [FromBody] CategoryUpdate categoryUpdate,
+        CancellationToken cancellationToken)
+    {
+        var category = await _categoryService.UpdateCategoryAsync(
+            categoryUpdate.ToCategory(id),
+            cancellationToken);
+        return Ok(category);
+    }
+
+    [HttpDelete("categories/{id:int}")]
+    public async Task<IActionResult> DeleteCategoryById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        await _categoryService.DeleteCategoryByIdAsync(id, cancellationToken);
         return Ok();
     }
 }

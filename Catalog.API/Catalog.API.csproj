@@ -20,15 +20,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
+      <None Include="..\.dockerignore">
         <Link>.dockerignore</Link>
-      </Content>
-      <Content Update="appsettings.Development.json">
+      </None>
+      <None Update="appsettings.Development.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Update="appsettings.Docker.json">
+      </None>
+      <None Update="appsettings.Docker.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      </None>
     </ItemGroup>
 
 </Project>

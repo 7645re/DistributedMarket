@@ -7,4 +7,8 @@ public interface IProductCategoryRepository
     Task<List<ProductEntityCategoryEntity>> GetProductsCategoriesByCategoryIdAsync(
         int id,
         CancellationToken cancellationToken);
+
+    Task CreateProductsCategoriesAsync(
+        IEnumerable<ProductEntityCategoryEntity> productEntityCategoryEntities,
+        CancellationToken cancellationToken);
 }
