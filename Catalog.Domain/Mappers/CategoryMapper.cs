@@ -18,4 +18,17 @@ public static class CategoryMapper
     {
         return categoryEntities.Select(ce => ce.ToCategory());
     }
+
+    public static CategoryEntity ToCategoryEntity(this Category category)
+    {
+        return new CategoryEntity
+        {
+            Name = category.Name
+        };
+    }
+
+    public static ICollection<CategoryEntity> ToCategoriesEntities(this IEnumerable<Category> categories)
+    {
+        return categories.Select(c => c.ToCategoryEntity()).ToArray();
+    }
 }

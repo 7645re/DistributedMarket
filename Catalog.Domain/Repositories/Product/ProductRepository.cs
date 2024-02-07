@@ -16,7 +16,9 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
     {
         return await Set
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+            .Where(p => p.Id == id)
+            .Include(p => p.Categories)
+            .SingleAsync(cancellationToken);
     }
 
     public async Task<List<ProductEntity>> GetProductByIdWithCategoriesAsync(
@@ -28,5 +30,12 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
             .Where(p => p.Id == id)
             .Include(p => p.Categories)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task DeleteProductByIdAsync(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        await Set.Where(p => p.Id == id).ExecuteDeleteAsync(cancellationToken);
     }
 }

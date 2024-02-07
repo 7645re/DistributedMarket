@@ -1,3 +1,5 @@
+using Catalog.API.Dto.Requests;
+using Catalog.API.Mappers;
 using Catalog.Domain.Services.CategoryService;
 using Catalog.Domain.Services.ProductService;
 using Microsoft.AspNetCore.Mvc;
@@ -53,5 +55,23 @@ public class CatalogController : ControllerBase
     {
         var categories = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
         return Ok(categories);
+    }
+
+    [HttpPost("products")]
+    public async Task<IActionResult> CreateProduct(
+        [FromBody] ProductCreate productCreate,
+        CancellationToken cancellationToken)
+    {
+        var createdProduct = await _productService.CreateProductAsync(productCreate.ToProduct(), cancellationToken);
+        return Ok(createdProduct);
+    }
+
+    [HttpDelete("products/{id:int}")]
+    public async Task<IActionResult> DeleteProduct(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        await _productService.DeleteProductByIdAsync(id, cancellationToken);
+        return Ok();
     }
 }

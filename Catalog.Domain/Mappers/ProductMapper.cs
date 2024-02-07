@@ -26,4 +26,15 @@ public static class ProductMapper
     {
         return productsCategories.Select(pc => pc.Product).ToProducts();
     }
+
+    public static ProductEntity ToProductEntity(this Product product)
+    {
+        return new ProductEntity
+        {
+            Name = product.Name,
+            Price = product.Price,
+            Description = product.Description,
+            Categories = product.Categories.ToCategoriesEntities()
+        };
+    }
 }

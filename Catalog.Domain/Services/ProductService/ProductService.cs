@@ -36,7 +36,23 @@ public class ProductService : IProductService
         int id,
         CancellationToken cancellationToken)
     {
-        var productsByCategories = await _productCategoryRepository.GetProductsCategoriesByCategoryIdAsync(id, cancellationToken);
+        var productsByCategories = await _productCategoryRepository
+            .GetProductsCategoriesByCategoryIdAsync(id, cancellationToken);
         return productsByCategories.ToProducts();
+    }
+
+    public async Task<Product> CreateProductAsync(
+        Product product,
+        CancellationToken cancellationToken)
+    {
+        var createdProduct = await _productRepository.AddAsync(product.ToProductEntity(), cancellationToken);
+        return createdProduct.ToProduct();
+    }
+
+    public async Task DeleteProductByIdAsync(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        await _productRepository.DeleteProductByIdAsync(id, cancellationToken);
     }
 }

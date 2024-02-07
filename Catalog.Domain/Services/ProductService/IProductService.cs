@@ -12,4 +12,12 @@ public interface IProductService
     Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(
         int id,
         CancellationToken cancellationToken);
+
+    Task<Product> CreateProductAsync(
+        Product product,
+        CancellationToken cancellationToken);
+
+    Task DeleteProductByIdAsync(
+        int id,
+        CancellationToken cancellationToken);
 }

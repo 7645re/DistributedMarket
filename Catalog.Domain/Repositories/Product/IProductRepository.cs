@@ -10,4 +10,6 @@ public interface IProductRepository : IRepository<ProductEntity>
     Task<List<ProductEntity>> GetProductByIdWithCategoriesAsync(
         int id,
         CancellationToken cancellationToken);
+
+    Task DeleteProductByIdAsync(int id, CancellationToken cancellationToken);
 }
