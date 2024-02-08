@@ -51,7 +51,9 @@ public class CatalogController : ControllerBase
         [FromBody] ProductCreate productCreate,
         CancellationToken cancellationToken)
     {
-        var createdProduct = await _productService.CreateProductAsync(productCreate.ToProduct(), cancellationToken);
+        var createdProduct = await _productService.CreateProductAsync(
+            productCreate.ToProduct(),
+            cancellationToken);
         return Ok(createdProduct);
     }
 

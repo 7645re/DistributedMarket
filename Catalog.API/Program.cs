@@ -8,6 +8,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext(builder);
 builder.Services.AddRepositories();
+builder.Services.AddUnitOfWork();
 builder.Services.AddServices();
 
 var app = builder.Build();

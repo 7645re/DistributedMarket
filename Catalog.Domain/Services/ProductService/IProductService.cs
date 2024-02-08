@@ -13,11 +13,11 @@ public interface IProductService
         int id,
         CancellationToken cancellationToken);
 
-    Task<Product> CreateProductAsync(
-        Product product,
-        CancellationToken cancellationToken);
-
     Task DeleteProductByIdAsync(
         int id,
+        CancellationToken cancellationToken);
+
+    Task<Product> CreateProductAsync(
+        Product product,
         CancellationToken cancellationToken);
 }

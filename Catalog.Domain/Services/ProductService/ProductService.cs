@@ -3,8 +3,8 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
-using Catalog.Domain.Repositories.ProductCategoryRepository;
-using Catalog.Domain.Services.CategoryService;
+using Catalog.Domain.Repositories.ProductCategory;
+using Catalog.Domain.UnitOfWork;
 
 namespace Catalog.Domain.Services.ProductService;
 
@@ -13,14 +13,18 @@ public class ProductService : IProductService
     private readonly IProductRepository _productRepository;
     private readonly IProductCategoryRepository _productCategoryRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public ProductService(
         IProductRepository productRepository,
-        IProductCategoryRepository productCategoryRepository, ICategoryRepository categoryRepository)
+        IProductCategoryRepository productCategoryRepository,
+        ICategoryRepository categoryRepository,
+        IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
         _productCategoryRepository = productCategoryRepository;
         _categoryRepository = categoryRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<Product>> GetProductsAsync(CancellationToken cancellationToken)
@@ -50,24 +54,27 @@ public class ProductService : IProductService
         Product product,
         CancellationToken cancellationToken)
     {
-        var productCategoriesIds = product
-            .Categories
-            .Select(c => c.Id)
-            .ToArray();
-        if (productCategoriesIds.Any())
+        using (_unitOfWork)
         {
-            var existedCategoriesEntities = await _categoryRepository
-                .GetCategoriesByIdsAsync(productCategoriesIds, cancellationToken);
-            if (productCategoriesIds.Length != existedCategoriesEntities.Count)
-                throw new ArgumentException("One of these product categories does not exist");
-
-            product.Categories = existedCategoriesEntities.ToCategories();
+            await _unitOfWork.BeginTransactionAsync();
+            var productEntity = product.ToProductEntity();
+            _unitOfWork.ProductRepository.Add(productEntity);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var productsCategories = product
+                .Categories
+                .Select(c => new ProductEntityCategoryEntity
+                {
+                    ProductId = productEntity.Id,
+                    CategoryId = c.Id,
+                });
+            _unitOfWork.ProductCategoryRepository.AddRange(productsCategories);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitTransactionAsync();
+            return productEntity.ToProduct();
         }
-        
-        var createdProduct = await _productRepository.AddAsync(product.ToProductEntity(), cancellationToken);
-        return createdProduct.ToProduct();
     }
 
+    // TODO: Add Unit of Work
     public async Task DeleteProductByIdAsync(
         int id,
         CancellationToken cancellationToken)

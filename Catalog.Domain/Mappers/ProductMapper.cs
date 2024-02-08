@@ -33,8 +33,7 @@ public static class ProductMapper
         {
             Name = product.Name,
             Price = product.Price,
-            Description = product.Description,
-            Categories = product.Categories.ToCategoriesEntities()
+            Description = product.Description
         };
     }
 }

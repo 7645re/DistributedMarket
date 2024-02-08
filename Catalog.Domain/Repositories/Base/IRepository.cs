@@ -1,13 +1,17 @@
 
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+
 namespace Catalog.Domain.Repositories.Base;
 
 public interface IRepository<TEntity> where TEntity : class
 {
-    Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
+    TEntity Add(TEntity entity);
 
-    Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
+    TEntity Update(TEntity entity);
 
-    Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+    EntityEntry<TEntity> Delete(TEntity entity);
 
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    void AddRange(IEnumerable<TEntity> entities);
 }

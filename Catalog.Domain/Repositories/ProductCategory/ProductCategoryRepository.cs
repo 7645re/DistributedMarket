@@ -2,7 +2,7 @@ using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 
-namespace Catalog.Domain.Repositories.ProductCategoryRepository;
+namespace Catalog.Domain.Repositories.ProductCategory;
 
 public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEntity>,
     IProductCategoryRepository
@@ -26,5 +26,6 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
         CancellationToken cancellationToken)
     {
         await Set.AddRangeAsync(productEntityCategoryEntities, cancellationToken);
+        await Context.SaveChangesAsync(cancellationToken);
     }
 }

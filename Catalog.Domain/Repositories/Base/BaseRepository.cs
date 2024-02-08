@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Catalog.Domain.Repositories.Base;
 
@@ -14,26 +15,26 @@ public abstract class BaseRepository<TEntity> where TEntity : class
         Set = Context.Set<TEntity>();
     }
     
-    public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public TEntity Add(TEntity entity)
     {
         Set.Add(entity);
-        await Context.SaveChangesAsync(cancellationToken);
-
         return entity;
     }
+    
+    public void AddRange(IEnumerable<TEntity> entities)
+    {
+        Set.AddRange(entities);
+    }
 
-    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public TEntity Update(TEntity entity)
     {
         Set.Update(entity);
-        await Context.SaveChangesAsync(cancellationToken);
-
         return entity;
     }
 
-    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public EntityEntry<TEntity> Delete(TEntity entity)
     {
-        Set.Remove(entity);
-        await Context.SaveChangesAsync(cancellationToken);
+        return Set.Remove(entity);
     }
 
     public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
