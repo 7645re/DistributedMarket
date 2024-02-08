@@ -9,9 +9,11 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
 {
     private readonly IProductCategoryRepository _productCategoryRepository;
     
-    public ProductRepository(CatalogDbContext context) : base(context)
+    public ProductRepository(
+        CatalogDbContext context,
+        IProductCategoryRepository productCategoryRepository) : base(context)
     {
-        _productCategoryRepository = new ProductCategoryRepository(context);
+        _productCategoryRepository = productCategoryRepository;
     }
 
     public async Task<ProductEntity?> GetProductByIdAsync(
@@ -36,10 +38,11 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
             .ToListAsync(cancellationToken);
     }
 
-    public async Task DeleteProductByIdAsync(
-        int id,
-        CancellationToken cancellationToken)
+    public void DeleteProduct(ProductEntity productEntity)
     {
-        await Set.Where(p => p.Id == id).ExecuteDeleteAsync(cancellationToken);
+        foreach (var category in productEntity.Categories)
+            Context.Entry(category).State = EntityState.Detached;
+        
+        Set.Remove(productEntity);
     }
 }

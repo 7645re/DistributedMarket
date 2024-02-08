@@ -32,22 +32,16 @@ public class CategoryService : ICategoryService
 
     public async Task<Category> CreateCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        using (_unitOfWork)
-        {
-            var categoryEntity = _unitOfWork.CategoryRepository.Add(category.ToCategoryEntity());
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return categoryEntity.ToCategory();
-        }
+        var categoryEntity = _unitOfWork.CategoryRepository.Add(category.ToCategoryEntity());
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return categoryEntity.ToCategory();
     }
 
     public async Task<Category> UpdateCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        using (_unitOfWork)
-        {
-            var categoryEntity = _unitOfWork.CategoryRepository.Update(category.ToCategoryEntity());
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return categoryEntity.ToCategory();
-        }
+        var categoryEntity = _unitOfWork.CategoryRepository.Update(category.ToCategoryEntity());
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return categoryEntity.ToCategory();
     }
 
     public async Task DeleteCategoryByIdAsync(int id, CancellationToken cancellationToken)

@@ -26,6 +26,12 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
         CancellationToken cancellationToken)
     {
         await Set.AddRangeAsync(productEntityCategoryEntities, cancellationToken);
-        await Context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteProductsCategoriesByProductId(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        await Set.Where(pc => pc.ProductId == id).ExecuteDeleteAsync(cancellationToken);
     }
 }

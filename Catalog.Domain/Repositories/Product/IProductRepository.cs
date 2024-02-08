@@ -11,5 +11,5 @@ public interface IProductRepository : IRepository<ProductEntity>
         int id,
         CancellationToken cancellationToken);
 
-    Task DeleteProductByIdAsync(int id, CancellationToken cancellationToken);
+    void DeleteProduct(ProductEntity productEntity);
 }

@@ -4,13 +4,13 @@ using Catalog.Domain.Repositories.ProductCategory;
 
 namespace Catalog.Domain.UnitOfWork;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork
 {
     ICategoryRepository CategoryRepository { get; }
     IProductRepository ProductRepository { get; }
     IProductCategoryRepository ProductCategoryRepository { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
-    Task BeginTransactionAsync();
-    Task CommitTransactionAsync();
-    Task RollbackTransactionAsync();
+    Task BeginTransactionAsync(CancellationToken cancellationToken);
+    Task CommitTransactionAsync(CancellationToken cancellationToken);
+    Task RollbackTransactionAsync(CancellationToken cancellationToken);
 }

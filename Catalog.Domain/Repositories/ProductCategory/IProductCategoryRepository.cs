@@ -12,4 +12,8 @@ public interface IProductCategoryRepository : IRepository<ProductEntityCategoryE
     Task CreateProductsCategoriesAsync(
         IEnumerable<ProductEntityCategoryEntity> productEntityCategoryEntities,
         CancellationToken cancellationToken);
+
+    Task DeleteProductsCategoriesByProductId(
+        int id,
+        CancellationToken cancellationToken);
 }
