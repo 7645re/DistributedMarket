@@ -1,4 +1,5 @@
 using Catalog.Domain.Dto;
+using Catalog.Domain.Dto.Category;
 
 namespace Catalog.Domain.Services.CategoryService;
 

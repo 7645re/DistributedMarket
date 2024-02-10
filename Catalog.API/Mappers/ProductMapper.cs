@@ -1,36 +1,32 @@
-using Catalog.API.Dto.Requests;
-using Catalog.API.Dto.Requests.Product;
-using Catalog.Domain.Dto;
+using Catalog.API.Dto.Product;
+using Catalog.Domain.Dto.Product;
 
 namespace Catalog.API.Mappers;
 
 public static class ProductMapper
 {
-    public static Product ToProduct(this ProductCreate productCreate)
+    public static ProductCreate ToProductCreate(this ProductCreateRequest productCreateRequest)
     {
-        return new Product
+        return new ProductCreate
         {
-            Name = productCreate.Name,
-            Price = productCreate.Price,
-            Description = productCreate.Description,
-            Categories = productCreate.Categories.ToCategories()
+            Name = productCreateRequest.Name,
+            Price = productCreateRequest.Price,
+            Count = productCreateRequest.Count,
+            Description = productCreateRequest.Description,
+            Categories = productCreateRequest.Categories
         };
     }
 
-    public static IEnumerable<Category> ToCategories(this IEnumerable<int> categoriesIds)
+    public static ProductUpdate ToProductUpdate(this ProductUpdateRequest productUpdateRequest, int id)
     {
-        return categoriesIds.Select(ci => new Category { Id = ci });
-    }
-
-    public static Product ToProduct(this ProductUpdate productUpdate, int id)
-    {
-        return new Product
+        return new ProductUpdate
         {
             Id = id,
-            Name = productUpdate.Name,
-            Price = productUpdate.Price,
-            Description = productUpdate.Description,
-            Categories = productUpdate.Categories.ToCategories()
+            Name = productUpdateRequest.Name,
+            Price = productUpdateRequest.Price,
+            Count = productUpdateRequest.Count,
+            Description = productUpdateRequest.Description,
+            Categories = productUpdateRequest.Categories
         };
     }
 }

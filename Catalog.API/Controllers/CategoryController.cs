@@ -1,4 +1,4 @@
-using Catalog.API.Dto.Requests.Category;
+using Catalog.API.Dto.Category;
 using Catalog.API.Mappers;
 using Catalog.Domain.Services.CategoryService;
 using Microsoft.AspNetCore.Mvc;
@@ -22,25 +22,21 @@ public class CategoryController : ControllerBase
         var categories = await _categoryService.GetCategoriesAsync(cancellationToken);
         return Ok(categories);
     }
-    
+
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetCategoryById(
-        int id,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCategoryById(int id, CancellationToken cancellationToken)
     {
-        var categories = await _categoryService.GetCategoryByIdAsync(
-            id,
-            cancellationToken);
-        return Ok(categories);
+        var category = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
+        return Ok(category);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateCategory(
-        [FromBody] CategoryCreate categoryCreate,
+        [FromBody] CategoryCreateRequest categoryCreateRequest,
         CancellationToken cancellationToken)
     {
         var category = await _categoryService.CreateCategoryAsync(
-            categoryCreate.ToCategory(),
+            categoryCreateRequest.ToCategory(),
             cancellationToken);
         return Ok(category);
     }
@@ -48,11 +44,11 @@ public class CategoryController : ControllerBase
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> UpdateCategoryById(
         int id,
-        [FromBody] CategoryUpdate categoryUpdate,
+        [FromBody] CategoryUpdateRequest categoryUpdateRequest,
         CancellationToken cancellationToken)
     {
         var category = await _categoryService.UpdateCategoryAsync(
-            categoryUpdate.ToCategory(id),
+            categoryUpdateRequest.ToCategory(id),
             cancellationToken);
         return Ok(category);
     }

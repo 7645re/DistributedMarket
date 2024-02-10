@@ -1,17 +1,18 @@
-﻿using Catalog.API.Dto.Requests.Category;
+﻿using Catalog.API.Dto.Category;
 using Catalog.Domain.Dto;
+using Catalog.Domain.Dto.Category;
 
 namespace Catalog.API.Mappers;
 
 public static class CategoryMapper
 {
-    public static Category ToCategory(this CategoryUpdate categoryUpdate, int id)
+    public static Category ToCategory(this CategoryUpdateRequest categoryUpdateRequest, int id)
     {
-        return new Category { Id = id, Name = categoryUpdate.Name };
+        return new Category { Id = id, Name = categoryUpdateRequest.Name };
     }
     
-    public static Category ToCategory(this CategoryCreate categoryCreate)
+    public static Category ToCategory(this CategoryCreateRequest categoryCreateRequest)
     {
-        return new Category { Name = categoryCreate.Name };
+        return new Category { Name = categoryCreateRequest.Name };
     }
 }

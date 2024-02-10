@@ -1,4 +1,4 @@
-namespace Catalog.Domain.Dto;
+namespace Catalog.Domain.Dto.Category;
 
 public class Category
 {

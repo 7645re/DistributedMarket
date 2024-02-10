@@ -1,4 +1,5 @@
 using Catalog.API.Extensions;
+using Catalog.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext(builder);
 builder.Services.AddRepositories();
+builder.Services.AddValidators();
 builder.Services.AddUnitOfWork();
 builder.Services.AddServices();
 
@@ -19,6 +21,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

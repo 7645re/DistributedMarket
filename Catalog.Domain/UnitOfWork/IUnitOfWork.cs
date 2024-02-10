@@ -1,6 +1,7 @@
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
 using Catalog.Domain.Repositories.ProductCategory;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Domain.UnitOfWork;
 
@@ -16,5 +17,6 @@ public interface IUnitOfWork
     
     Task ExecuteInTransactionAsync(
         Func<Task> action,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        Action<DbUpdateException>? onException = null);
 }

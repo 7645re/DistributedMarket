@@ -44,9 +44,9 @@ public class UnitOfWork : IUnitOfWork
         await _context.Database.RollbackTransactionAsync(cancellationToken);
     }
 
-    public async Task ExecuteInTransactionAsync(
-        Func<Task> action,
-        CancellationToken cancellationToken)
+    public async Task ExecuteInTransactionAsync(Func<Task> action,
+        CancellationToken cancellationToken,
+        Action<DbUpdateException>? onException)
     {
         try
         {
@@ -57,7 +57,13 @@ public class UnitOfWork : IUnitOfWork
         catch (DbUpdateException e)
         {
             await _context.Database.RollbackTransactionAsync(cancellationToken);
-            throw;
+
+            if (onException is not null)
+                onException(e);
+            else
+            {
+                throw;
+            }
         }
     }
 }

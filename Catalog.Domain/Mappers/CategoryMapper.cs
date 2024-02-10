@@ -1,4 +1,5 @@
 using Catalog.Domain.Dto;
+using Catalog.Domain.Dto.Category;
 using Catalog.Domain.Models;
 
 namespace Catalog.Domain.Mappers;

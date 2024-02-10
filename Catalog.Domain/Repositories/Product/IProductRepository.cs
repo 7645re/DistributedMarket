@@ -12,4 +12,14 @@ public interface IProductRepository : IRepository<ProductEntity>
     Task<ProductEntity?> GetByIdWithCategoriesAsync(
         int id,
         CancellationToken cancellationToken);
+
+    Task<ProductEntity?> GetByNameAsync(
+        string name,
+        CancellationToken cancellationToken);
+
+    Task<List<ProductEntityCategoryEntity>> GetByCategoryIdAsync(
+        int categoryId, CancellationToken cancellationToken);
+    
+    Task<List<ProductEntityCategoryEntity>> GetByCategoriesIdsAsync(
+        IEnumerable<int> categoryId, CancellationToken cancellationToken);
 }

@@ -11,4 +11,8 @@ public interface IProductCategoryRepository : IRepository<ProductEntityCategoryE
         int productId,
         int[] categoriesId,
         CancellationToken cancellationToken);
+
+    Task<List<ProductEntityCategoryEntity>> GetProductCategoryByCategoryId(
+        int categoryId,
+        CancellationToken cancellationToken);
 }

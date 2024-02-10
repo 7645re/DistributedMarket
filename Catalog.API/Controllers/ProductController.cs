@@ -1,5 +1,4 @@
-using Catalog.API.Dto.Requests;
-using Catalog.API.Dto.Requests.Product;
+using Catalog.API.Dto.Product;
 using Catalog.API.Mappers;
 using Catalog.Domain.Services.ProductService;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +25,11 @@ public class ProductController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateProduct(
-        [FromBody] ProductCreate productCreate,
+        [FromBody] ProductCreateRequest productCreateRequest,
         CancellationToken cancellationToken)
     {
         var createdProduct = await _productService.CreateProductAsync(
-            productCreate.ToProduct(),
+            productCreateRequest.ToProductCreate(),
             cancellationToken);
         return Ok(createdProduct);
     }
@@ -47,13 +46,12 @@ public class ProductController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateProductById(
         int id,
-        [FromBody] ProductUpdate productUpdate,
+        [FromBody] ProductUpdateRequest productUpdateRequest,
         CancellationToken cancellationToken)
     {
         var result = await _productService.UpdateProductByIdAsync(
-            productUpdate.ToProduct(id),
+            productUpdateRequest.ToProductUpdate(id),
             cancellationToken);
-        
         return Ok(result);
     }
 }

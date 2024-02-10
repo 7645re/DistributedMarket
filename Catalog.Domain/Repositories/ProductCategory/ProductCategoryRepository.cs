@@ -26,4 +26,13 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
                 c.ProductId == productId
                 && categoriesId.Contains(c.CategoryId)));
     }
+
+    public Task<List<ProductEntityCategoryEntity>> GetProductCategoryByCategoryId(
+        int categoryId,
+        CancellationToken cancellationToken)
+    {
+        return Set
+            .Where(e => e.CategoryId == categoryId)
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -1,4 +1,4 @@
-namespace Catalog.Domain.Dto;
+namespace Catalog.Domain.Dto.Product;
 
 public class Product
 {
@@ -10,5 +10,7 @@ public class Product
     
     public string Description { get; set; } = string.Empty;
 
-    public IEnumerable<Category> Categories { get; set; } = Array.Empty<Category>();
+    public int Count { get; set; }
+
+    public IEnumerable<Category.Category> Categories { get; set; } = Array.Empty<Category.Category>();
 }

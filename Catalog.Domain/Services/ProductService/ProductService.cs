@@ -1,7 +1,8 @@
-using Catalog.Domain.Dto;
+using Catalog.Domain.Dto.Product;
 using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
+using Catalog.Domain.Validators.Product;
 
 namespace Catalog.Domain.Services.ProductService;
 
@@ -9,139 +10,104 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public ProductService(IUnitOfWork unitOfWork)
+    private readonly IProductValidator _productValidator;
+
+    public ProductService(
+        IUnitOfWork unitOfWork,
+        IProductValidator productValidator)
     {
         _unitOfWork = unitOfWork;
+        _productValidator = productValidator;
+    }
+
+    public async Task<Product> GetProductByIdAsync(
+        int id, CancellationToken cancellationToken)
+    {
+        var productEntity = await _unitOfWork.ProductRepository.GetByIdAsync(id, cancellationToken);
+        if (productEntity is null)
+            throw new InvalidOperationException($"Product with id {id} not found");
+        
+        return productEntity.ToProduct();
+    }
+
+    public async Task<IEnumerable<Product>> GetProductByCategoryIdAsync(
+        int categoryId, CancellationToken cancellationToken)
+    {
+        var productsEntities = await _unitOfWork.ProductRepository
+            .GetByCategoryIdAsync(categoryId, cancellationToken);
+        return productsEntities.ToProducts();
+    }
+
+    public async Task<IEnumerable<Product>> GetProductByCategoriesIdsAsync(
+        IEnumerable<int> categoriesIds, CancellationToken cancellationToken)
+    {
+        var productsEntities = await _unitOfWork.ProductRepository
+            .GetByCategoriesIdsAsync(categoriesIds, cancellationToken);
+        return productsEntities.ToProducts();
     }
 
     public async Task<Product> CreateProductAsync(
-        Product product,
-        CancellationToken cancellationToken)
+        ProductCreate productCreate, CancellationToken cancellationToken)
     {
-        var productCategories = product.Categories;
-        var categoriesEntities = (await _unitOfWork
-            .CategoryRepository
-            .GetByIdsAsync(
-                product.Categories.Select(c => c.Id),
-                cancellationToken)).ToArray();
+        await _productValidator.ValidateAsync(productCreate, cancellationToken);
 
-        if (categoriesEntities.Length != productCategories.Count())
-        {
-            var exceptCategoriesIds = product
-                .Categories
-                .Select(c => c.Id)
-                .Except(categoriesEntities.Select(c => c.Id))
-                .ToArray();
-            throw new InvalidOperationException(
-                "Categories with ids " + string.Join(", ", exceptCategoriesIds) + " not found");
-        }
-
-        var productEntity = product.ToProductEntityWithoutCategories();
-        await _unitOfWork.ExecuteInTransactionAsync(
-            async () =>
-            {
-                _unitOfWork.ProductRepository.Add(productEntity);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                var productsCategories = product
-                    .Categories
-                    .Select(c => new ProductEntityCategoryEntity
-                    {
-                        ProductId = productEntity.Id,
-                        CategoryId = c.Id
-                    });
-                _unitOfWork.ProductCategoryRepository.AddRange(productsCategories);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-            },
-            cancellationToken);
-
-        return productEntity.ToProduct(categoriesEntities);
-    }
-
-    public async Task<Product> GetProductWithCategoriesByIdAsync(int id, CancellationToken cancellationToken)
-    {
-        var product = await _unitOfWork.ProductRepository.GetByIdWithCategoriesAsync(id, cancellationToken);
-        if (product is null)
-            throw new InvalidOperationException($"Product with id {id} not found");
-
-        return product.ToProduct();
-    }
-
-    public async Task DeleteProductByIdAsync(
-        int id,
-        CancellationToken cancellationToken)
-    {
-        var existingProduct = await _unitOfWork.ProductRepository.GetByIdAsync(id, cancellationToken);
-        if (existingProduct is null)
-            throw new InvalidOperationException($"Product with id {id} not found");
-
-        await _unitOfWork.ExecuteInTransactionAsync(() =>
-            {
-                _unitOfWork.ProductRepository.Remove(existingProduct);
-                _unitOfWork.ProductCategoryRepository.DeleteByProductId(id, cancellationToken);
-                return Task.CompletedTask;
-            }, cancellationToken);
-    }
-
-    public async Task<Product> UpdateProductByIdAsync(Product product,
-        CancellationToken cancellationToken)
-    {
-        var existingProductEntity = await _unitOfWork
-            .ProductRepository
-            .GetByIdWithCategoriesAsync(product.Id, cancellationToken);
-        if (existingProductEntity is null)
-            throw new InvalidOperationException($"Product with id {product.Id} doesnt exist");
-
-        var existingProduct = existingProductEntity.ToProduct();
-        if (!IsUpdated(existingProduct, product))
-            throw new InvalidOperationException("No changes");
-
-        var productCategories = product.Categories.Select(c => c.Id).ToArray();
-        var existingCategoriesIds = existingProduct.Categories.Select(c => c.Id).ToArray();
-        var existingCategories = (await _unitOfWork
-            .CategoryRepository
-            .GetByIdsAsync(productCategories, cancellationToken)).ToArray();
-        if (existingCategories.Length != product.Categories.Count())
-            throw new InvalidOperationException("Categories not found");
-        
-        var categoriesForDeleteIds = existingCategoriesIds
-            .Except(productCategories).ToArray();
-        var categoriesForAddIds = productCategories
-            .Except(existingCategoriesIds).ToArray();
-        
-        var productEntity = product.ToProductEntityWithoutCategories();
+        var productEntity = productCreate.ToProductEntityWithoutCategories();
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            _unitOfWork.ProductRepository.Update(productEntity);
-            _unitOfWork.ProductCategoryRepository
-                .DeleteByProductIdAndCategoriesIds(
-                    product.Id,
-                    categoriesForDeleteIds,
-                    cancellationToken);
-            _unitOfWork.ProductCategoryRepository
-                .AddRange(categoriesForAddIds.Select(categoryId => new ProductEntityCategoryEntity
-                {
-                    ProductId = product.Id,
-                    CategoryId = categoryId
-                }));
+            var savedEntity = _unitOfWork.ProductRepository.Add(productEntity);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var productCategoryEntity = productCreate
+                .Categories
+                .Select(id => new ProductEntityCategoryEntity
+                {
+                    ProductId = savedEntity.Id,
+                    CategoryId = id
+                })
+                .ToList();
+            _unitOfWork.ProductCategoryRepository.AddRange(productCategoryEntity);
         }, cancellationToken);
 
-        return productEntity.ToProduct(existingCategories);
+        return productEntity.ToProduct(productCreate.Categories);
+    }
+
+    public async Task<Product> UpdateProductAsync(
+        ProductUpdate productUpdate, CancellationToken cancellationToken)
+    {
+        var productEntityById = await _unitOfWork.ProductRepository.GetByIdAsync(
+            productUpdate.Id, cancellationToken);
+        if (productEntityById is null)
+            throw new InvalidOperationException($"A product with such an ID: {productUpdate.Id} does not exist");
+
+        await _productValidator.ValidateAsync(productUpdate, productEntityById, cancellationToken);
         
-        bool IsUpdated(Product productFromDb, Product productFromClient)
+        UpdateChangedFields(productUpdate, productEntityById);
+        var productsCategoriesEntitiesForAdd = 
+        await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var result = false;
-            if (productFromDb.Name != productFromClient.Name)
-                result = true;
-            if (productFromDb.Description != productFromClient.Description)
-                result = true;
-            if (productFromDb.Price != productFromClient.Price)
-                result = true;
+            _unitOfWork.ProductRepository.Update(productEntityById);
+            
+        }, cancellationToken);
+        
+        void UpdateChangedFields(ProductUpdate productUpdateForUpdate, ProductEntity productEntityForUpdate)
+        {
+            if (productUpdateForUpdate.Name is not null)
+                productEntityForUpdate.Name = productUpdateForUpdate.Name;
 
-            if (!productFromDb.Categories.Select(c => c.Id).ToHashSet().SetEquals(productFromClient.Categories.Select(c => c.Id).ToHashSet()))
-                result = true;
+            if (productUpdateForUpdate.Price is not null)
+                productEntityForUpdate.Price = productUpdateForUpdate.Price.Value;
 
-            return result;
+            if (productUpdateForUpdate.Count is not null)
+                productEntityForUpdate.Count = productUpdateForUpdate.Count.Value;
+            
+            if (productUpdateForUpdate.Description is not null)
+                productEntityForUpdate.Description = productUpdateForUpdate.Description;
         }
+    }
+
+    public Task DeleteProductByIdAsync(
+        int id, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }

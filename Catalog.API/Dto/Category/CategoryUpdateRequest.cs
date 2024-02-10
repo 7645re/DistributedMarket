@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Catalog.API.Dto.Requests.Category;
+namespace Catalog.API.Dto.Category;
 
-public class CategoryUpdate
+public class CategoryUpdateRequest
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
