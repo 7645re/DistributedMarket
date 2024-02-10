@@ -8,4 +8,8 @@ public interface IProductRepository : IRepository<ProductEntity>
     Task<ProductEntity?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken);
+
+    Task<ProductEntity?> GetByIdWithCategoriesAsync(
+        int id,
+        CancellationToken cancellationToken);
 }

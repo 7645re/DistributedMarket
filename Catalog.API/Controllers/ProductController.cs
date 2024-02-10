@@ -1,4 +1,5 @@
 using Catalog.API.Dto.Requests;
+using Catalog.API.Dto.Requests.Product;
 using Catalog.API.Mappers;
 using Catalog.Domain.Services.ProductService;
 using Microsoft.AspNetCore.Mvc;
@@ -15,31 +16,15 @@ public class ProductController : ControllerBase
     {
         _productService = productService;
     }
-    
-    [HttpPost]
-    public async Task<IActionResult> GetProducts(
-        [FromQuery] int? categoryId,
-        CancellationToken cancellationToken)
-    {
-        if (categoryId is not null)
-        {
-            var productsByCategory = await _productService
-                .GetProductsByCategoryIdAsync(categoryId.Value, cancellationToken);
-            return Ok(productsByCategory);
-        }
 
-        var products = await _productService.GetProductsAsync(cancellationToken);
-        return Ok(products);
-    }
-
-    [HttpGet("products/{id:int}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
     {
-        var products = await _productService.GetProductWithCategoriesAsync(id, cancellationToken);
+        var products = await _productService.GetProductWithCategoriesByIdAsync(id, cancellationToken);
         return Ok(products);
     }
 
-    [HttpPost("products")]
+    [HttpPost]
     public async Task<IActionResult> CreateProduct(
         [FromBody] ProductCreate productCreate,
         CancellationToken cancellationToken)
@@ -57,5 +42,18 @@ public class ProductController : ControllerBase
     {
         await _productService.DeleteProductByIdAsync(id, cancellationToken);
         return Ok();
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateProductById(
+        int id,
+        [FromBody] ProductUpdate productUpdate,
+        CancellationToken cancellationToken)
+    {
+        var result = await _productService.UpdateProductByIdAsync(
+            productUpdate.ToProduct(id),
+            cancellationToken);
+        
+        return Ok(result);
     }
 }

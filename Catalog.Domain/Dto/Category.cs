@@ -1,6 +1,8 @@
 namespace Catalog.Domain.Dto;
 
-public record Category(string Name, int Id = 0)
+public class Category
 {
-    public readonly string Name = string.Empty;
+    public int Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
 }

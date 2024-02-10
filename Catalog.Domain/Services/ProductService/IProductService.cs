@@ -4,15 +4,10 @@ namespace Catalog.Domain.Services.ProductService;
 
 public interface IProductService
 {
-    Task<IEnumerable<Product>> GetProductsAsync(CancellationToken cancellationToken);
-
-    Task<IEnumerable<Product>> GetProductWithCategoriesAsync(int id,
-        CancellationToken cancellationToken);
-
-    Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(
+    Task<Product> GetProductWithCategoriesByIdAsync(
         int id,
         CancellationToken cancellationToken);
-
+    
     Task DeleteProductByIdAsync(
         int id,
         CancellationToken cancellationToken);
@@ -21,7 +16,6 @@ public interface IProductService
         Product product,
         CancellationToken cancellationToken);
 
-    Task UpdateProductByIdAsync(
-        Product product,
+    Task<Product> UpdateProductByIdAsync(Product product,
         CancellationToken cancellationToken);
 }

@@ -14,25 +14,6 @@ public class ProductService : IProductService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<Product>> GetProductsAsync(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<Product>> GetProductWithCategoriesAsync(
-        int id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(
-        int id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<Product> CreateProductAsync(
         Product product,
         CancellationToken cancellationToken)
@@ -76,6 +57,15 @@ public class ProductService : IProductService
         return productEntity.ToProduct(categoriesEntities);
     }
 
+    public async Task<Product> GetProductWithCategoriesByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        var product = await _unitOfWork.ProductRepository.GetByIdWithCategoriesAsync(id, cancellationToken);
+        if (product is null)
+            throw new InvalidOperationException($"Product with id {id} not found");
+
+        return product.ToProduct();
+    }
+
     public async Task DeleteProductByIdAsync(
         int id,
         CancellationToken cancellationToken)
@@ -92,13 +82,12 @@ public class ProductService : IProductService
             }, cancellationToken);
     }
 
-    public async Task UpdateProductByIdAsync(
-        Product product,
+    public async Task<Product> UpdateProductByIdAsync(Product product,
         CancellationToken cancellationToken)
     {
         var existingProductEntity = await _unitOfWork
             .ProductRepository
-            .GetByIdAsync(product.Id, cancellationToken);
+            .GetByIdWithCategoriesAsync(product.Id, cancellationToken);
         if (existingProductEntity is null)
             throw new InvalidOperationException($"Product with id {product.Id} doesnt exist");
 
@@ -108,10 +97,10 @@ public class ProductService : IProductService
 
         var productCategories = product.Categories.Select(c => c.Id).ToArray();
         var existingCategoriesIds = existingProduct.Categories.Select(c => c.Id).ToArray();
-        var existingCategories = await _unitOfWork
+        var existingCategories = (await _unitOfWork
             .CategoryRepository
-            .GetByIdsAsync(productCategories, cancellationToken);
-        if (existingCategories.Count() != product.Categories.Count())
+            .GetByIdsAsync(productCategories, cancellationToken)).ToArray();
+        if (existingCategories.Length != product.Categories.Count())
             throw new InvalidOperationException("Categories not found");
         
         var categoriesForDeleteIds = existingCategoriesIds
@@ -134,7 +123,10 @@ public class ProductService : IProductService
                     ProductId = product.Id,
                     CategoryId = categoryId
                 }));
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
+
+        return productEntity.ToProduct(existingCategories);
         
         bool IsUpdated(Product productFromDb, Product productFromClient)
         {
@@ -146,8 +138,7 @@ public class ProductService : IProductService
             if (productFromDb.Price != productFromClient.Price)
                 result = true;
 
-            if (!(productFromDb.Categories.Sum(c => c.Id) == productFromClient.Categories.Sum(c => c.Id)
-                  && productFromDb.Categories.Count() == productFromClient.Categories.Count()))
+            if (!productFromDb.Categories.Select(c => c.Id).ToHashSet().SetEquals(productFromClient.Categories.Select(c => c.Id).ToHashSet()))
                 result = true;
 
             return result;
