@@ -20,14 +20,12 @@ public class CategoryService : ICategoryService
 
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
-        var categories = await _categoryRepository.GetAllAsync(cancellationToken);
-        return categories.ToCategories();
+        throw new NotImplementedException();
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var category = await _categoryRepository.GetCategoryByIdAsync(id, cancellationToken);
-        return category?.ToCategory();
+        throw new NotImplementedException();
     }
 
     public async Task<Category> CreateCategoryAsync(Category category, CancellationToken cancellationToken)
@@ -46,6 +44,6 @@ public class CategoryService : ICategoryService
 
     public async Task DeleteCategoryByIdAsync(int id, CancellationToken cancellationToken)
     {
-        await _categoryRepository.DeleteCategoryByIdAsync(id, cancellationToken);
+        throw new NotImplementedException();
     }
 }

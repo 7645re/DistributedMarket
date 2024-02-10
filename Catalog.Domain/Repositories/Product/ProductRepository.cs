@@ -8,7 +8,7 @@ namespace Catalog.Domain.Repositories.Product;
 public class ProductRepository : BaseRepository<ProductEntity>, IProductRepository
 {
     private readonly IProductCategoryRepository _productCategoryRepository;
-    
+
     public ProductRepository(
         CatalogDbContext context,
         IProductCategoryRepository productCategoryRepository) : base(context)
@@ -16,33 +16,13 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
         _productCategoryRepository = productCategoryRepository;
     }
 
-    public async Task<ProductEntity?> GetProductByIdAsync(
+    public async Task<ProductEntity?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken)
     {
         return await Set
             .AsNoTracking()
-            .Where(p => p.Id == id)
-            .Include(p => p.Categories)
-            .SingleAsync(cancellationToken);
-    }
-
-    public async Task<List<ProductEntity>> GetProductByIdWithCategoriesAsync(
-        int id,
-        CancellationToken cancellationToken)
-    {
-        return await Set
-            .AsNoTracking()
-            .Where(p => p.Id == id)
-            .Include(p => p.Categories)
-            .ToListAsync(cancellationToken);
-    }
-
-    public void DeleteProduct(ProductEntity productEntity)
-    {
-        foreach (var category in productEntity.Categories)
-            Context.Entry(category).State = EntityState.Detached;
-        
-        Set.Remove(productEntity);
+            .Where(e => e.Id == id)
+            .SingleOrDefaultAsync(cancellationToken);
     }
 }

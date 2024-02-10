@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Catalog.Domain.Repositories.Base;
 
@@ -20,11 +19,6 @@ public abstract class BaseRepository<TEntity> where TEntity : class
         Set.Add(entity);
         return entity;
     }
-    
-    public void AddRange(IEnumerable<TEntity> entities)
-    {
-        Set.AddRange(entities);
-    }
 
     public TEntity Update(TEntity entity)
     {
@@ -32,13 +26,18 @@ public abstract class BaseRepository<TEntity> where TEntity : class
         return entity;
     }
 
-    public EntityEntry<TEntity> Delete(TEntity entity)
+    public void AddRange(IEnumerable<TEntity> entities)
     {
-        return Set.Remove(entity);
+        Set.AddRange(entities);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+    public void Remove(TEntity entity)
     {
-        return await Set.AsNoTracking().ToListAsync(cancellationToken);
+        Set.Remove(entity);
+    }
+
+    public void RemoveRange(IEnumerable<TEntity> entities)
+    {
+        Set.RemoveRange(entities);
     }
 }

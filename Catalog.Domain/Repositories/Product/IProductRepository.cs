@@ -5,11 +5,7 @@ namespace Catalog.Domain.Repositories.Product;
 
 public interface IProductRepository : IRepository<ProductEntity>
 {
-    Task<ProductEntity?> GetProductByIdAsync(int id, CancellationToken cancellationToken);
-
-    Task<List<ProductEntity>> GetProductByIdWithCategoriesAsync(
+    Task<ProductEntity?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken);
-
-    void DeleteProduct(ProductEntity productEntity);
 }

@@ -7,14 +7,19 @@ public static class ProductMapper
 {
     public static Product ToProduct(this ProductEntity productEntity)
     {
-        return new Product
-        {
-            Id = productEntity.Id,
-            Name = productEntity.Name,
-            Price = productEntity.Price,
-            Description = productEntity.Description,
-            Categories = productEntity.Categories.ToCategories()
-        };
+        return new Product(productEntity.Name,
+            productEntity.Price,
+            productEntity.Description,
+            productEntity.Categories.ToCategories(),
+            productEntity.Id);
+    }
+    
+    public static Product ToProduct(this ProductEntity productEntity, IEnumerable<CategoryEntity> categories)
+    {
+        return new Product(productEntity.Name,
+            productEntity.Price,
+            productEntity.Description,
+            categories.ToCategories(), productEntity.Id);
     }
 
     public static IEnumerable<Product> ToProducts(this IEnumerable<ProductEntity> productEntities)
@@ -27,7 +32,7 @@ public static class ProductMapper
         return productsCategories.Select(pc => pc.Product).ToProducts();
     }
 
-    public static ProductEntity ToProductEntity(this Product product)
+    public static ProductEntity ToProductEntityWithoutCategories(this Product product)
     {
         return new ProductEntity
         {

@@ -7,11 +7,7 @@ public static class CategoryMapper
 {
     public static Category ToCategory(this CategoryEntity categoryEntity)
     {
-        return new Category
-        {
-            Id = categoryEntity.Id,
-            Name = categoryEntity.Name
-        };
+        return new Category(categoryEntity.Name, categoryEntity.Id);
     }
 
     public static IEnumerable<Category> ToCategories(this IEnumerable<CategoryEntity> categoryEntities)

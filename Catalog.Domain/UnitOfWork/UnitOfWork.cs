@@ -1,6 +1,7 @@
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
 using Catalog.Domain.Repositories.ProductCategory;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Domain.UnitOfWork;
 
@@ -41,5 +42,22 @@ public class UnitOfWork : IUnitOfWork
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken)
     {
         await _context.Database.RollbackTransactionAsync(cancellationToken);
+    }
+
+    public async Task ExecuteInTransactionAsync(
+        Func<Task> action,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _context.Database.BeginTransactionAsync(cancellationToken);
+            await action();
+            await _context.Database.CommitTransactionAsync(cancellationToken);
+        }
+        catch (DbUpdateException e)
+        {
+            await _context.Database.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
     }
 }

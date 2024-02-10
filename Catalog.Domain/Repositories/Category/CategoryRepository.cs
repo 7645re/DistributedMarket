@@ -10,23 +10,12 @@ public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepos
     {
     }
 
-    public async Task<CategoryEntity?> GetCategoryByIdAsync(int id, CancellationToken cancellationToken)
-    {
-        return await Set.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-    }
-
-    public async Task DeleteCategoryByIdAsync(int id, CancellationToken cancellationToken)
-    {
-        await Set.Where(c => c.Id == id).ExecuteDeleteAsync(cancellationToken);
-    }
-
-    public async Task<List<CategoryEntity>> GetCategoriesByIdsAsync(
-        IEnumerable<int> categoriesIds,
-        CancellationToken cancellationToken)
+    public async Task<IEnumerable<CategoryEntity>> GetByIdsAsync(
+        IEnumerable<int> ids, CancellationToken cancellationToken)
     {
         return await Set
             .AsNoTracking()
-            .Where(c => categoriesIds.Contains(c.Id))
+            .Where(c => ids.Contains(c.Id))
             .ToListAsync(cancellationToken);
     }
 }

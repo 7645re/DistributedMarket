@@ -20,4 +20,8 @@ public interface IProductService
     Task<Product> CreateProductAsync(
         Product product,
         CancellationToken cancellationToken);
+
+    Task UpdateProductByIdAsync(
+        Product product,
+        CancellationToken cancellationToken);
 }

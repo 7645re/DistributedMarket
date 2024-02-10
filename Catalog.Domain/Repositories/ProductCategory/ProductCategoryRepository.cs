@@ -11,27 +11,19 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
     {
     }
 
-    public async Task<List<ProductEntityCategoryEntity>> GetProductsCategoriesByCategoryIdAsync(
-        int id,
-        CancellationToken cancellationToken)
+    public void DeleteByProductId(int id, CancellationToken cancellationToken)
     {
-        return await Set
-            .AsNoTracking()
-            .Where(pc => pc.CategoryId == id)
-            .ToListAsync(cancellationToken);
+        Set.RemoveRange(Set.Where(c => c.ProductId == id));
     }
 
-    public async Task CreateProductsCategoriesAsync(
-        IEnumerable<ProductEntityCategoryEntity> productEntityCategoryEntities,
+    public void DeleteByProductIdAndCategoriesIds(
+        int productId,
+        int[] categoriesId,
         CancellationToken cancellationToken)
     {
-        await Set.AddRangeAsync(productEntityCategoryEntities, cancellationToken);
-    }
-
-    public async Task DeleteProductsCategoriesByProductId(
-        int id,
-        CancellationToken cancellationToken)
-    {
-        await Set.Where(pc => pc.ProductId == id).ExecuteDeleteAsync(cancellationToken);
+        Set.RemoveRange(Set
+            .Where(c =>
+                c.ProductId == productId
+                && categoriesId.Contains(c.CategoryId)));
     }
 }

@@ -7,18 +7,11 @@ public static class CategoryMapper
 {
     public static Category ToCategory(this CategoryUpdate categoryUpdate, int id)
     {
-        return new Category
-        {
-            Id = id,
-            Name = categoryUpdate.Name
-        };
+        return new Category(categoryUpdate.Name, id);
     }
     
     public static Category ToCategory(this CategoryCreate categoryCreate)
     {
-        return new Category
-        {
-            Name = categoryCreate.Name
-        };
+        return new Category(categoryCreate.Name);
     }
 }

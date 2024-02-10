@@ -5,15 +5,10 @@ namespace Catalog.Domain.Repositories.ProductCategory;
 
 public interface IProductCategoryRepository : IRepository<ProductEntityCategoryEntity>
 {
-    Task<List<ProductEntityCategoryEntity>> GetProductsCategoriesByCategoryIdAsync(
-        int id,
-        CancellationToken cancellationToken);
+    void DeleteByProductId(int id, CancellationToken cancellationToken);
 
-    Task CreateProductsCategoriesAsync(
-        IEnumerable<ProductEntityCategoryEntity> productEntityCategoryEntities,
-        CancellationToken cancellationToken);
-
-    Task DeleteProductsCategoriesByProductId(
-        int id,
+    void DeleteByProductIdAndCategoriesIds(
+        int productId,
+        int[] categoriesId,
         CancellationToken cancellationToken);
 }
