@@ -260,10 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 
-# Custom ignores
-[Cc]ontent/
-Product/
-
 # Helmfile
 .helmfile/
 

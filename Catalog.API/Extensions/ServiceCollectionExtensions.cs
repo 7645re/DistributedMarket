@@ -1,9 +1,12 @@
 using Catalog.Domain;
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
-using Catalog.Domain.Repositories.ProductCategoryRepository;
+using Catalog.Domain.Repositories.ProductCategory;
 using Catalog.Domain.Services.CategoryService;
 using Catalog.Domain.Services.ProductService;
+using Catalog.Domain.UnitOfWork;
+using Catalog.Domain.Validators.Category;
+using Catalog.Domain.Validators.Product;
 using Catalog.Migrator.Options;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,11 +21,24 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
 
+    public static IServiceCollection AddUnitOfWork(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
+        return serviceCollection;
+    }
+    
+    public static IServiceCollection AddValidators(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<IProductValidator, ProductValidator>();
+        serviceCollection.AddScoped<ICategoryValidator, CategoryValidator>();
+        return serviceCollection;
+    }
+
     public static IServiceCollection AddRepositories(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddTransient<IProductCategoryRepository, ProductCategoryRepository>();
-        serviceCollection.AddTransient<IProductRepository, ProductRepository>();
-        serviceCollection.AddTransient<ICategoryRepository, CategoryRepository>();
+        serviceCollection.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+        serviceCollection.AddScoped<IProductRepository, ProductRepository>();
+        serviceCollection.AddScoped<ICategoryRepository, CategoryRepository>();
         return serviceCollection;
     }
     

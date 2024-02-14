@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Catalog.API.Dto.Requests;
+namespace Catalog.API.Dto.Product;
 
-public class ProductCreate
+public class ProductCreateRequest
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
@@ -10,9 +10,12 @@ public class ProductCreate
     [JsonPropertyName("price")]
     public decimal Price { get; set; }
 
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
+
     [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("categories")]
-    public ICollection<CategoryCreate> Categories { get; set; } = ArraySegment<CategoryCreate>.Empty;
+    public ICollection<int> Categories { get; set; } = Array.Empty<int>();
 }

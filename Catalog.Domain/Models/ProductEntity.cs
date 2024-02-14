@@ -9,7 +9,7 @@ namespace Catalog.Domain.Models;
 public class ProductEntity
 {
     [Key]
-    public int Id { get; set; } = default!;
+    public int Id { get; set; }
     
     [Required]
     [MaxLength(20)]
@@ -22,6 +22,9 @@ public class ProductEntity
     [Required]
     [MaxLength(100)]
     public string Description { get; set; }
+
+    [Required]
+    public int Count { get; set; }
 
     public ICollection<CategoryEntity> Categories { get; set; } = new List<CategoryEntity>();
 }

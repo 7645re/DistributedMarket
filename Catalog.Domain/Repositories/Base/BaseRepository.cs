@@ -14,30 +14,30 @@ public abstract class BaseRepository<TEntity> where TEntity : class
         Set = Context.Set<TEntity>();
     }
     
-    public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public TEntity Add(TEntity entity)
     {
         Set.Add(entity);
-        await Context.SaveChangesAsync(cancellationToken);
-
         return entity;
     }
 
-    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public TEntity Update(TEntity entity)
     {
         Set.Update(entity);
-        await Context.SaveChangesAsync(cancellationToken);
-
         return entity;
     }
 
-    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public void AddRange(IEnumerable<TEntity> entities)
     {
-        Set.Remove(entity);
-        await Context.SaveChangesAsync(cancellationToken);
+        Set.AddRange(entities);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+    public void Remove(TEntity entity)
     {
-        return await Set.AsNoTracking().ToListAsync(cancellationToken);
+        Set.Remove(entity);
+    }
+
+    public void RemoveRange(IEnumerable<TEntity> entities)
+    {
+        Set.RemoveRange(entities);
     }
 }
