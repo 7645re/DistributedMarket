@@ -65,4 +65,9 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
             .Include(x => x.Product)
             .ToListAsync(cancellationToken);
     }
+
+    public void DeleteById(int id)
+    {
+        Set.Remove(Set.First(x => x.Id == id));
+    }
 }

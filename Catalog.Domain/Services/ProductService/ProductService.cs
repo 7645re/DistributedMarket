@@ -23,7 +23,7 @@ public class ProductService : IProductService
     public async Task<Product> GetProductByIdAsync(
         int id, CancellationToken cancellationToken)
     {
-        var productEntity = await _unitOfWork.ProductRepository.GetByIdAsync(id, cancellationToken);
+        var productEntity = await _unitOfWork.ProductRepository.GetByIdWithCategoriesAsync(id, cancellationToken);
         if (productEntity is null)
             throw new InvalidOperationException($"Product with id {id} not found");
         
@@ -66,6 +66,7 @@ public class ProductService : IProductService
                 })
                 .ToList();
             _unitOfWork.ProductCategoryRepository.AddRange(productCategoryEntity);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
         return productEntity.ToProduct(productCreate.Categories);
@@ -74,7 +75,7 @@ public class ProductService : IProductService
     public async Task<Product> UpdateProductAsync(
         ProductUpdate productUpdate, CancellationToken cancellationToken)
     {
-        var productEntityById = await _unitOfWork.ProductRepository.GetByIdAsync(
+        var productEntityById = await _unitOfWork.ProductRepository.GetByIdWithCategoriesAsync(
             productUpdate.Id, cancellationToken);
         if (productEntityById is null)
             throw new InvalidOperationException($"A product with such an ID: {productUpdate.Id} does not exist");
@@ -82,12 +83,39 @@ public class ProductService : IProductService
         await _productValidator.ValidateAsync(productUpdate, productEntityById, cancellationToken);
         
         UpdateChangedFields(productUpdate, productEntityById);
-        var productsCategoriesEntitiesForAdd = 
+        int[]? productCategoriesForDelete = null;
+        ProductEntityCategoryEntity[]? productCategoriesForAdd = null;
+        if (productUpdate.Categories is not null)
+        {
+            var oldCategoriesIds = productEntityById.Categories.Select(c => c.Id).ToArray();
+            productCategoriesForAdd = productUpdate
+                .Categories
+                .Except(oldCategoriesIds)
+                .Select(id => new ProductEntityCategoryEntity
+                {
+                    ProductId = productEntityById.Id,
+                    CategoryId = id
+                })
+                .ToArray();
+            productCategoriesForDelete = oldCategoriesIds.Except(productUpdate.Categories).ToArray();
+        }
+
+       
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            _unitOfWork.ProductRepository.Update(productEntityById);
-            
+            var productEntityWithoutCategories = productEntityById;
+            productEntityWithoutCategories.Categories = Array.Empty<CategoryEntity>();
+            _unitOfWork.ProductRepository.Update(productEntityWithoutCategories);
+            if (productCategoriesForAdd is not null)
+                _unitOfWork.ProductCategoryRepository.AddRange(productCategoriesForAdd);
+            if (productCategoriesForDelete is not null)
+                _unitOfWork.ProductCategoryRepository
+                    .DeleteByProductIdAndCategoriesIds(
+                        productEntityById.Id, productCategoriesForDelete, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
+
+        return productEntityById.ToProduct(productUpdate.Categories);
         
         void UpdateChangedFields(ProductUpdate productUpdateForUpdate, ProductEntity productEntityForUpdate)
         {
@@ -105,9 +133,18 @@ public class ProductService : IProductService
         }
     }
 
-    public Task DeleteProductByIdAsync(
+    public async Task DeleteProductByIdAsync(
         int id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var existingProduct = _unitOfWork.ProductRepository.GetByIdAsync(id, cancellationToken);
+        if (existingProduct is null)
+            throw new InvalidOperationException($"A product with such an ID: {id} does not exist");
+
+        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            _unitOfWork.ProductCategoryRepository.DeleteByProductId(id, cancellationToken);
+            _unitOfWork.ProductRepository.DeleteById(id);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }, cancellationToken);
     }
 }

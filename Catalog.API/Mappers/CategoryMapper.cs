@@ -6,13 +6,23 @@ namespace Catalog.API.Mappers;
 
 public static class CategoryMapper
 {
-    public static Category ToCategory(this CategoryUpdateRequest categoryUpdateRequest, int id)
+    public static CategoryCreate ToCategoryCreate(this CategoryCreateRequest categoryCreateRequest)
     {
-        return new Category { Id = id, Name = categoryUpdateRequest.Name };
+        return new CategoryCreate { Name = categoryCreateRequest.Name };
     }
-    
-    public static Category ToCategory(this CategoryCreateRequest categoryCreateRequest)
+
+    public static CategoryCreateResponse ToCategoryCreateResponse(this Category category)
     {
-        return new Category { Name = categoryCreateRequest.Name };
+        return new CategoryCreateResponse { Id = category.Id, Name = category.Name };
+    }
+
+    public static CategoryUpdateResponse ToCategoryUpdateResponse(this Category category)
+    {
+        return new CategoryUpdateResponse { Name = category.Name };
+    }
+
+    public static CategoryUpdate ToCategoryUpdate(this CategoryUpdateRequest categoryUpdateRequest, int id)
+    {
+        return new CategoryUpdate { Id = id, Name = categoryUpdateRequest.Name };
     }
 }

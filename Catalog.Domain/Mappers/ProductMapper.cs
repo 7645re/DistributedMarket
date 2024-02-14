@@ -20,7 +20,7 @@ public static class ProductMapper
         };
     }
     
-    public static Product ToProduct(this ProductEntity productEntity, IEnumerable<int> categoriesIds)
+    public static Product ToProduct(this ProductEntity productEntity, IEnumerable<int>? categoriesIds)
     {
         return new Product
         {
@@ -29,7 +29,8 @@ public static class ProductMapper
             Price = productEntity.Price,
             Count = productEntity.Count,
             Description = productEntity.Description,
-            Categories = categoriesIds.Select(id => new Category {Id = id})
+            Categories = categoriesIds is null ? Array.Empty<Category>() 
+                : categoriesIds.Select(id => new Category {Id = id})
         };
     }
 

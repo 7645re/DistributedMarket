@@ -27,12 +27,14 @@ public class GlobalExceptionMiddleware
     private static Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
         context.Response.ContentType = "application/json";
+        var stackTrace = string.Empty;
         if (ex is InvalidOperationException)
         {
             context.Response.StatusCode = (int)HttpStatusCode.Conflict;
         }
         else
         {
+            stackTrace = ex.StackTrace;
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }
 
@@ -41,7 +43,8 @@ public class GlobalExceptionMiddleware
         {
             error = new
             {
-                message = ex.Message
+                message = ex.Message,
+                trace = stackTrace
             }
         };
 

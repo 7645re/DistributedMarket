@@ -5,17 +5,17 @@ namespace Catalog.API.Dto.Product;
 public class ProductUpdateRequest
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
     
     [JsonPropertyName("price")]
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
 
     [JsonPropertyName("count")]
-    public int Count { get; set; }
+    public int? Count { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
 
     [JsonPropertyName("categories")]
-    public ICollection<int> Categories { get; set; } = Array.Empty<int>();
+    public ICollection<int>? Categories { get; set; }
 }

@@ -1,6 +1,8 @@
 using Catalog.Domain.Dto.Category;
 using Catalog.Domain.Mappers;
+using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
+using Catalog.Domain.Validators.Category;
 
 namespace Catalog.Domain.Services.CategoryService;
 
@@ -8,9 +10,12 @@ public class CategoryService : ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public CategoryService(IUnitOfWork unitOfWork)
+    private readonly ICategoryValidator _categoryValidator;
+
+    public CategoryService(IUnitOfWork unitOfWork, ICategoryValidator categoryValidator)
     {
         _unitOfWork = unitOfWork;
+        _categoryValidator = categoryValidator;
     }
 
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
@@ -25,44 +30,45 @@ public class CategoryService : ICategoryService
         return categoryEntity?.ToCategory();
     }
 
-    public async Task<Category> CreateCategoryAsync(Category category, CancellationToken cancellationToken)
+    public async Task<Category> CreateCategoryAsync(
+        CategoryCreate categoryCreate, CancellationToken cancellationToken)
     {
-        await CheckCategoryIsUnique(category, cancellationToken);
-        var categoryEntity = _unitOfWork.CategoryRepository.Add(category.ToCategoryEntity());
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _categoryValidator.ValidateAsync(categoryCreate, cancellationToken);
+
+        var categoryEntity = categoryCreate.ToCategoryEntity();
+        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            categoryEntity = _unitOfWork.CategoryRepository.Add(categoryEntity);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }, cancellationToken);
         return categoryEntity.ToCategory();
     }
 
-    public async Task<Category> UpdateCategoryAsync(Category category, CancellationToken cancellationToken)
+    public async Task<Category> UpdateCategoryAsync(CategoryUpdate categoryUpdate, CancellationToken cancellationToken)
     {
-        var existingCategoryEntityById = await _unitOfWork
-            .CategoryRepository
-            .GetByIdAsync(category.Id, cancellationToken);
-        if (existingCategoryEntityById is null)
-            throw new InvalidOperationException($"Category with id {category.Id} doesnt exist");
+        var categoryEntity = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryUpdate.Id, cancellationToken);
+        if (categoryEntity is null)
+            throw new InvalidOperationException($"Category with id {categoryUpdate.Id} not found");
 
-        await CheckCategoryIsUnique(category, cancellationToken);
-        
-        existingCategoryEntityById.Name = category.Name;
-        
+        await _categoryValidator.ValidateAsync(categoryEntity, categoryUpdate, cancellationToken);
+        UpdateChangedFields(categoryUpdate, categoryEntity);
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            _unitOfWork
-                .CategoryRepository
-                .Update(existingCategoryEntityById);
+            _unitOfWork.CategoryRepository.Update(categoryEntity);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
-
-        return existingCategoryEntityById.ToCategory();
+        return categoryEntity.ToCategory();
     }
 
     public async Task DeleteCategoryByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var categoriesWithRelations = await _unitOfWork
-            .ProductCategoryRepository
-            .GetProductCategoryByCategoryId(id, cancellationToken);
-        if (categoriesWithRelations.Any())
-            throw new InvalidOperationException("Category cannot be deleted because it has a dependency");
+        var existCategory = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
+        if (existCategory is null)
+            throw new InvalidOperationException($"Category with id {id} not found");
+
+        var productEntities = await _unitOfWork.ProductRepository.GetByCategoryIdAsync(id, cancellationToken);
+        if (productEntities.Any())
+            throw new InvalidOperationException($"Category with id {id} has products");
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
@@ -71,14 +77,9 @@ public class CategoryService : ICategoryService
         }, cancellationToken);
     }
 
-    private async Task CheckCategoryIsUnique(Category category, CancellationToken cancellationToken)
+    private void UpdateChangedFields(CategoryUpdate categoryUpdate, CategoryEntity categoryEntity)
     {
-        var categoryEntityWithSameName = await _unitOfWork
-            .CategoryRepository
-            .GetByNameAsync(category.Name, cancellationToken);
-        if (categoryEntityWithSameName is not null && categoryEntityWithSameName.Id != category.Id) 
-            throw new InvalidOperationException($"Category with name {category.Name} already exists");
-        if (categoryEntityWithSameName is not null && categoryEntityWithSameName.Id == category.Id)
-            throw new InvalidOperationException($"Category already have this name");
+        if (categoryUpdate.Name is not null)
+            categoryEntity.Name = categoryUpdate.Name;
     }
 }

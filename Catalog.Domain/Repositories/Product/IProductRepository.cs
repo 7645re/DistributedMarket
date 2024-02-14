@@ -22,4 +22,6 @@ public interface IProductRepository : IRepository<ProductEntity>
     
     Task<List<ProductEntityCategoryEntity>> GetByCategoriesIdsAsync(
         IEnumerable<int> categoryId, CancellationToken cancellationToken);
+
+    void DeleteById(int id);
 }

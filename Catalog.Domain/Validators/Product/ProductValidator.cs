@@ -26,31 +26,55 @@ public class ProductValidator : IProductValidator
         await NameShouldBeUniqueAsync(productCreate.Name, cancellationToken);
         await CategoriesShouldBeExistsAsync(productCreate.Categories.ToArray(), cancellationToken);
     }
-    
+
     public async Task ValidateAsync(
         ProductUpdate productUpdate, ProductEntity productEntity, CancellationToken cancellationToken)
     {
         AtLeastOneFieldMustChanged(productEntity, productUpdate);
-        
+
         if (productUpdate.Price is not null)
             PriceShouldBeNotNegative(productUpdate.Price.Value);
-        
+
         if (productUpdate.Count is not null)
             CountShouldBeNotNegative(productUpdate.Count.Value);
-        
+
         if (productUpdate.Name is not null)
             NameLengthShouldBeMoreZero(productUpdate.Name);
 
         if (productUpdate.Categories is not null)
+        {
             await CategoriesShouldBeExistsAsync(productUpdate.Categories.ToArray(), cancellationToken);
+            CategoriesShouldBeUpdated(
+                productEntity.Categories.Select(c => c.Id).ToArray(),
+                productUpdate.Categories.ToArray());
+        }
+    }
+
+    private void CategoriesShouldBeUpdated(int[] oldCategoriesIds, int[] newCategoriesIds)
+    {
+        var sortedOldCategoriesIds = oldCategoriesIds.OrderBy(x => x).ToArray();
+        var sortedNewCategoriesIds = newCategoriesIds.OrderBy(x => x).ToArray();
+        if (sortedOldCategoriesIds.SequenceEqual(sortedNewCategoriesIds))
+            throw new InvalidOperationException("No changes");
     }
 
     private void AtLeastOneFieldMustChanged(ProductEntity productEntity, ProductUpdate productUpdate)
     {
-        var productEntityForCompare = new ProductForCompare(productEntity.Name, productEntity.Price,
-            productEntity.Description, productEntity.Count, productEntity.Categories.Select(c => c.Id).ToArray());
-        var productUpdateForCompare = new ProductForCompare(productUpdate.Name, productUpdate.Price,
-            productUpdate.Description, productUpdate.Count, productUpdate.Categories.ToArray());
+        var productEntityCategoriesIds = productEntity.Categories.Select(c => c.Id).OrderBy(x => x).ToArray();
+        var productEntityForCompare = new ProductForCompare(
+            productEntity.Name,
+            productEntity.Price,
+            productEntity.Description,
+            productEntity.Count,
+            productEntityCategoriesIds);
+        var productUpdateForCompare = new ProductForCompare(
+            productUpdate.Name ?? productEntity.Name,
+            productUpdate.Price ?? productEntity.Price,
+            productUpdate.Description ?? productEntity.Description,
+            productUpdate.Count ?? productEntity.Count,
+            productUpdate.Categories is null
+                ? productEntityCategoriesIds
+                : productUpdate.Categories.OrderBy(x => x).ToArray());
 
         if (productEntityForCompare.Equals(productUpdateForCompare))
             throw new InvalidOperationException("No changes");
@@ -64,7 +88,7 @@ public class ProductValidator : IProductValidator
             var exceptCategoriesId = categoriesIds.Except(neededCategories.Select(c => c.Id));
             throw new InvalidOperationException($"The specified product categories with " +
                                                 $"ids: {string.Join(", ", exceptCategoriesId)} do not exist");
-        }        
+        }
     }
 
     private async Task NameShouldBeUniqueAsync(
@@ -100,4 +124,4 @@ public class ProductValidator : IProductValidator
     }
 }
 
-record ProductForCompare(string? Name, decimal? Price, string? Description, int? Count, int[] CategoriesIds); 
+record ProductForCompare(string Name, decimal Price, string Description, int Count, int[] CategoriesIds);

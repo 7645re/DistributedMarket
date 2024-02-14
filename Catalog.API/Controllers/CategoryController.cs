@@ -36,9 +36,9 @@ public class CategoryController : ControllerBase
         CancellationToken cancellationToken)
     {
         var category = await _categoryService.CreateCategoryAsync(
-            categoryCreateRequest.ToCategory(),
+            categoryCreateRequest.ToCategoryCreate(),
             cancellationToken);
-        return Ok(category);
+        return Ok(category.ToCategoryCreateResponse());
     }
     
     [HttpPatch("{id:int}")]
@@ -48,9 +48,9 @@ public class CategoryController : ControllerBase
         CancellationToken cancellationToken)
     {
         var category = await _categoryService.UpdateCategoryAsync(
-            categoryUpdateRequest.ToCategory(id),
+            categoryUpdateRequest.ToCategoryUpdate(id),
             cancellationToken);
-        return Ok(category);
+        return Ok(category.ToCategoryUpdateResponse());
     }
 
     [HttpDelete("{id:int}")]

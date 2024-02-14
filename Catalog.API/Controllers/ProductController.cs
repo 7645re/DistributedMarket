@@ -19,8 +19,8 @@ public class ProductController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
     {
-        var products = await _productService.GetProductWithCategoriesByIdAsync(id, cancellationToken);
-        return Ok(products);
+        var products = await _productService.GetProductByIdAsync(id, cancellationToken);
+        return Ok(products.ToProductGetResponse());
     }
 
     [HttpPost]
@@ -31,7 +31,7 @@ public class ProductController : ControllerBase
         var createdProduct = await _productService.CreateProductAsync(
             productCreateRequest.ToProductCreate(),
             cancellationToken);
-        return Ok(createdProduct);
+        return Ok(createdProduct.ToProductCreateResponse());
     }
 
     [HttpDelete("{id:int}")]
@@ -49,9 +49,9 @@ public class ProductController : ControllerBase
         [FromBody] ProductUpdateRequest productUpdateRequest,
         CancellationToken cancellationToken)
     {
-        var result = await _productService.UpdateProductByIdAsync(
+        var result = await _productService.UpdateProductAsync(
             productUpdateRequest.ToProductUpdate(id),
             cancellationToken);
-        return Ok(result);
+        return Ok(result.ToProductUpdateResponse());
     }
 }

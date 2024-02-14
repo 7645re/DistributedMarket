@@ -29,4 +29,42 @@ public static class ProductMapper
             Categories = productUpdateRequest.Categories
         };
     }
+
+    public static ProductCreateResponse ToProductCreateResponse(this Product product)
+    {
+        return new ProductCreateResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price,
+            Count = product.Count,
+            Description = product.Description,
+            Categories = product.Categories.Select(c => c.Id).ToArray()
+        };
+    }
+
+    public static ProductGetResponse ToProductGetResponse(this Product product)
+    {
+        return new ProductGetResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price,
+            Count = product.Count,
+            Description = product.Description,
+            Categories = product.Categories.Select(c => c.Id).ToArray()
+        };
+    }
+
+    public static ProductUpdateResponse ToProductUpdateResponse(this Product product)
+    {
+        return new ProductUpdateResponse
+        {
+            Name = product.Name,
+            Price = product.Price,
+            Count = product.Count,
+            Description = product.Description,
+            Categories = product.Categories.Select(c => c.Id).ToArray()
+        };
+    }
 }

@@ -1,14 +1,20 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace Catalog.API.Dto.Requests.Product;
+namespace Catalog.API.Dto.Product;
 
-public class ProductCreate
+public class ProductGetResponse
 {
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+    
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
     [JsonPropertyName("price")]
     public decimal Price { get; set; }
+
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
 
     [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;

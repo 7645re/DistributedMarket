@@ -5,6 +5,7 @@ using Catalog.Domain.Repositories.ProductCategory;
 using Catalog.Domain.Services.CategoryService;
 using Catalog.Domain.Services.ProductService;
 using Catalog.Domain.UnitOfWork;
+using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
 using Catalog.Migrator.Options;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,8 @@ public static class ServiceCollectionExtensions
     
     public static IServiceCollection AddValidators(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddScoped<IProductValidator, IProductValidator>();
+        serviceCollection.AddScoped<IProductValidator, ProductValidator>();
+        serviceCollection.AddScoped<ICategoryValidator, CategoryValidator>();
         return serviceCollection;
     }
 

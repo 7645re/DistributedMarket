@@ -2,7 +2,7 @@
 
 namespace Catalog.API.Dto.Category;
 
-public class CategoryUpdateRequest
+public class CategoryUpdateResponse
 {
     [JsonPropertyName("name")]
     public string? Name { get; set; }
