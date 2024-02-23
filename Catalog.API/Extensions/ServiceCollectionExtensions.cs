@@ -1,4 +1,5 @@
 using Catalog.Domain;
+using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
 using Catalog.Domain.Repositories.ProductCategory;
@@ -7,6 +8,7 @@ using Catalog.Domain.Services.ProductService;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
+using Catalog.Kafka.Extensions;
 using Catalog.Migrator.Options;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,5 +55,22 @@ public static class ServiceCollectionExtensions
                 .Get<DatabaseOptions>()
                 ?.ConnectionString)
         );
+    }
+
+    public static IServiceCollection AddKafka(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddKafkaMessageBus();
+        serviceCollection.AddKafkaProducer<string, ProductEntity>(p =>
+        {
+            p.BootstrapServers = "localhost:9092";
+            p.Topic = "CreatedProducts";
+        });
+        serviceCollection.AddKafkaProducer<string, CategoryEntity>(p =>
+        {
+            p.BootstrapServers = "localhost:9092";
+            p.Topic = "CreatedCategories";
+        });
+
+        return serviceCollection;
     }
 }

@@ -3,21 +3,24 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Product;
+using Catalog.Kafka;
 
 namespace Catalog.Domain.Services.ProductService;
 
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
-
     private readonly IProductValidator _productValidator;
+    private readonly IKafkaMessageBus<string, ProductEntity> _kafkaMessageBus;
 
     public ProductService(
         IUnitOfWork unitOfWork,
-        IProductValidator productValidator)
+        IProductValidator productValidator,
+        IKafkaMessageBus<string, ProductEntity> kafkaMessageBus)
     {
         _unitOfWork = unitOfWork;
         _productValidator = productValidator;
+        _kafkaMessageBus = kafkaMessageBus;
     }
 
     public async Task<Product> GetProductByIdAsync(
@@ -26,7 +29,7 @@ public class ProductService : IProductService
         var productEntity = await _unitOfWork.ProductRepository.GetByIdWithCategoriesAsync(id, cancellationToken);
         if (productEntity is null)
             throw new InvalidOperationException($"Product with id {id} not found");
-        
+
         return productEntity.ToProduct();
     }
 
@@ -69,6 +72,7 @@ public class ProductService : IProductService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
+        await _kafkaMessageBus.PublishAsync(productEntity.Id.ToString(), productEntity, cancellationToken);
         return productEntity.ToProduct(productCreate.Categories);
     }
 
@@ -81,7 +85,7 @@ public class ProductService : IProductService
             throw new InvalidOperationException($"A product with such an ID: {productUpdate.Id} does not exist");
 
         await _productValidator.ValidateAsync(productUpdate, productEntityById, cancellationToken);
-        
+
         UpdateChangedFields(productUpdate, productEntityById);
         int[]? productCategoriesForDelete = null;
         ProductEntityCategoryEntity[]? productCategoriesForAdd = null;
@@ -100,7 +104,7 @@ public class ProductService : IProductService
             productCategoriesForDelete = oldCategoriesIds.Except(productUpdate.Categories).ToArray();
         }
 
-       
+
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             var productEntityWithoutCategories = productEntityById;
@@ -116,7 +120,7 @@ public class ProductService : IProductService
         }, cancellationToken);
 
         return productEntityById.ToProduct(productUpdate.Categories);
-        
+
         void UpdateChangedFields(ProductUpdate productUpdateForUpdate, ProductEntity productEntityForUpdate)
         {
             if (productUpdateForUpdate.Name is not null)
@@ -127,7 +131,7 @@ public class ProductService : IProductService
 
             if (productUpdateForUpdate.Count is not null)
                 productEntityForUpdate.Count = productUpdateForUpdate.Count.Value;
-            
+
             if (productUpdateForUpdate.Description is not null)
                 productEntityForUpdate.Description = productUpdateForUpdate.Description;
         }
