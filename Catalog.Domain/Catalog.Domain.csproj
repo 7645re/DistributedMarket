@@ -11,8 +11,4 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Catalog.Kafka\Catalog.Kafka.csproj" />
-    </ItemGroup>
-
 </Project>

@@ -3,7 +3,6 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
-using Catalog.Kafka;
 
 namespace Catalog.Domain.Services.CategoryService;
 
@@ -11,15 +10,12 @@ public class CategoryService : ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICategoryValidator _categoryValidator;
-    private readonly IKafkaMessageBus<string, CategoryEntity> _kafkaMessageBus;
 
     public CategoryService(IUnitOfWork unitOfWork,
-        ICategoryValidator categoryValidator,
-        IKafkaMessageBus<string, CategoryEntity> kafkaMessageBus)
+        ICategoryValidator categoryValidator)
     {
         _unitOfWork = unitOfWork;
         _categoryValidator = categoryValidator;
-        _kafkaMessageBus = kafkaMessageBus;
     }
 
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
@@ -45,7 +41,6 @@ public class CategoryService : ICategoryService
             categoryEntity = _unitOfWork.CategoryRepository.Add(categoryEntity);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
-        await _kafkaMessageBus.PublishAsync("", categoryEntity, cancellationToken);
         return categoryEntity.ToCategory();
     }
 

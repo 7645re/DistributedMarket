@@ -3,7 +3,6 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Product;
-using Catalog.Kafka;
 
 namespace Catalog.Domain.Services.ProductService;
 
@@ -11,16 +10,13 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductValidator _productValidator;
-    private readonly IKafkaMessageBus<string, ProductEntity> _kafkaMessageBus;
 
     public ProductService(
         IUnitOfWork unitOfWork,
-        IProductValidator productValidator,
-        IKafkaMessageBus<string, ProductEntity> kafkaMessageBus)
+        IProductValidator productValidator)
     {
         _unitOfWork = unitOfWork;
         _productValidator = productValidator;
-        _kafkaMessageBus = kafkaMessageBus;
     }
 
     public async Task<Product> GetProductByIdAsync(
@@ -72,7 +68,6 @@ public class ProductService : IProductService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
-        await _kafkaMessageBus.PublishAsync(productEntity.Id.ToString(), productEntity, cancellationToken);
         return productEntity.ToProduct(productCreate.Categories);
     }
 

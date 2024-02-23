@@ -1,5 +1,5 @@
+using Catalog.API.Options;
 using Catalog.Domain;
-using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
 using Catalog.Domain.Repositories.ProductCategory;
@@ -8,9 +8,7 @@ using Catalog.Domain.Services.ProductService;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
-using Catalog.Kafka.Extensions;
 using Microsoft.EntityFrameworkCore;
-using DatabaseOptions = Catalog.API.Options.DatabaseOptions;
 
 namespace Catalog.API.Extensions;
 
@@ -35,7 +33,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<ICategoryValidator, CategoryValidator>();
         return serviceCollection;
     }
-
+    
     public static IServiceCollection AddRepositories(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
@@ -55,22 +53,5 @@ public static class ServiceCollectionExtensions
                 .Get<DatabaseOptions>()
                 ?.ConnectionString)
         );
-    }
-
-    public static IServiceCollection AddKafka(this IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddKafkaMessageBus();
-        serviceCollection.AddKafkaProducer<string, ProductEntity>(p =>
-        {
-            p.BootstrapServers = "localhost:9092";
-            p.Topic = "CreatedProducts";
-        });
-        serviceCollection.AddKafkaProducer<string, CategoryEntity>(p =>
-        {
-            p.BootstrapServers = "localhost:9092";
-            p.Topic = "CreatedCategories";
-        });
-        
-        return serviceCollection;
     }
 }

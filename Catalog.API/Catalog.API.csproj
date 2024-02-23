@@ -16,7 +16,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
-      <ProjectReference Include="..\Catalog.Kafka\Catalog.Kafka.csproj" />
     </ItemGroup>
 
     <ItemGroup>

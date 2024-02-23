@@ -11,7 +11,6 @@ builder.Services.AddDbContext(builder);
 builder.Services.AddRepositories();
 builder.Services.AddValidators();
 builder.Services.AddUnitOfWork();
-builder.Services.AddKafka();
 builder.Services.AddServices();
 
 var app = builder.Build();
