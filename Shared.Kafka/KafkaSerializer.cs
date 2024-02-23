@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Confluent.Kafka;
 
-namespace Catalog.Kafka;
+namespace Shared.Kafka;
 
 class KafkaSerializer<T> : ISerializer<T>
 {

@@ -8,9 +8,14 @@
 
     <ItemGroup>
       <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Catalog.Kafka\Catalog.Kafka.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Catalog.Kafka\Catalog.Kafka.csproj" />
     </ItemGroup>
 
 </Project>

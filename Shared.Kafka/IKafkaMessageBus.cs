@@ -1,4 +1,4 @@
-namespace Catalog.Kafka;
+namespace Shared.Kafka;
 
 public interface IKafkaMessageBus<TK, TV>
 {

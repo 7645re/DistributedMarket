@@ -9,17 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-      <Content Update="appsettings.Development.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="FluentMigrator" Version="3.3.2" />
         <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
         <PackageReference Include="FluentMigrator.Runner.SqlServer" Version="3.3.2" />
@@ -29,15 +18,24 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="appsettings.Development.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="appsettings.Docker.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="appsettings.Docker.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Update="appsettings.Development.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.Docker.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.Development.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.Docker.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+    
 </Project>

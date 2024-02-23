@@ -8,7 +8,7 @@ public class KafkaProducer<TK, TV> : IDisposable
     private readonly IProducer<TK, TV> _producer;
     private readonly string _topic;
 
-    public KafkaProducer(IOptions<KafkaProducerConfig> topicOptions, IProducer<TK, TV> producer)
+    public KafkaProducer(IOptions<KafkaProducerConfig<TK, TV>> topicOptions, IProducer<TK, TV> producer)
     {
         _topic = topicOptions.Value.Topic;
         _producer = producer;

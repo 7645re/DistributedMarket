@@ -9,8 +9,8 @@ using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
 using Catalog.Kafka.Extensions;
-using Catalog.Migrator.Options;
 using Microsoft.EntityFrameworkCore;
+using DatabaseOptions = Catalog.API.Options.DatabaseOptions;
 
 namespace Catalog.API.Extensions;
 
@@ -70,7 +70,7 @@ public static class ServiceCollectionExtensions
             p.BootstrapServers = "localhost:9092";
             p.Topic = "CreatedCategories";
         });
-
+        
         return serviceCollection;
     }
 }

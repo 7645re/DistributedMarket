@@ -1,6 +1,6 @@
 using Catalog.Kafka.Producer;
 
-namespace Catalog.Kafka;
+namespace Shared.Kafka;
 
 public class KafkaMessageBus<TK, TV> : IKafkaMessageBus<TK, TV>
 {
