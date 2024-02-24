@@ -12,5 +12,5 @@ public class ProductUpdate
 
     public string? Description { get; set; }
 
-    public ICollection<int>? Categories { get; set; }
+    public IList<int>? Categories { get; set; }
 }

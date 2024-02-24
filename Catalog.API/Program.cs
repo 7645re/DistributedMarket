@@ -8,7 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext(builder);
-builder.Services.AddKafka();
+builder.Services.AddKafka(builder);
 builder.Services.AddRepositories();
 builder.Services.AddValidators();
 builder.Services.AddUnitOfWork();

@@ -1,4 +1,4 @@
-namespace Catalog.API.Options;
+namespace Catalog.Domain.Options;
 
 public class DatabaseOptions
 {

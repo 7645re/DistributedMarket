@@ -3,6 +3,7 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Product;
+using Catalog.Messaging.Events;
 using MassTransit;
 using MassTransit.KafkaIntegration;
 
@@ -12,16 +13,22 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductValidator _productValidator;
-    private readonly ITopicProducer<ProductEntity> _productProducer;
+    private readonly ITopicProducer<Guid, ProductCreateEvent> _productCreateProducer;
+    private readonly ITopicProducer<Guid, ProductUpdateEvent> _productUpdateProducer;
+    private readonly ITopicProducer<Guid, ProductDeleteEvent> _productDeleteProducer;
 
     public ProductService(
         IUnitOfWork unitOfWork,
         IProductValidator productValidator,
-        ITopicProducer<ProductEntity> productProducer)
+        ITopicProducer<Guid, ProductCreateEvent> productCreateProducer,
+        ITopicProducer<Guid, ProductDeleteEvent> productDeleteProducer,
+        ITopicProducer<Guid, ProductUpdateEvent> productUpdateProducer)
     {
         _unitOfWork = unitOfWork;
         _productValidator = productValidator;
-        _productProducer = productProducer;
+        _productCreateProducer = productCreateProducer;
+        _productDeleteProducer = productDeleteProducer;
+        _productUpdateProducer = productUpdateProducer;
     }
 
     public async Task<Product> GetProductByIdAsync(
@@ -73,7 +80,10 @@ public class ProductService : IProductService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
-        await _productProducer.Produce(productEntity, cancellationToken);
+        var productCreateEvent = productEntity.ToProductCreateEvent();
+        productCreateEvent.Categories = productCreate.Categories;
+
+        await _productCreateProducer.Produce(Guid.NewGuid(), productCreateEvent, cancellationToken);
         return productEntity.ToProduct(productCreate.Categories);
     }
 
@@ -120,6 +130,11 @@ public class ProductService : IProductService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
+        await _productUpdateProducer.Produce(
+            Guid.NewGuid(),
+            productEntityById.ToProductUpdateEvent(productUpdate),
+            cancellationToken);
+        
         return productEntityById.ToProduct(productUpdate.Categories);
 
         void UpdateChangedFields(ProductUpdate productUpdateForUpdate, ProductEntity productEntityForUpdate)
@@ -150,6 +165,11 @@ public class ProductService : IProductService
             _unitOfWork.ProductCategoryRepository.DeleteByProductId(id, cancellationToken);
             _unitOfWork.ProductRepository.DeleteById(id);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }, cancellationToken);
+        await _productDeleteProducer.Produce(Guid.NewGuid(), new ProductDeleteEvent
+        {
+            Id = id,
+            Timestamp = DateTime.UtcNow
         }, cancellationToken);
     }
 }

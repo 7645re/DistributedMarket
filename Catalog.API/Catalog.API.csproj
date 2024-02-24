@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
         <PackageReference Include="MassTransit.AspNetCore" Version="7.0.0" />
         <PackageReference Include="MassTransit.Kafka" Version="7.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2"/>
@@ -18,6 +19,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
+      <ProjectReference Include="..\Catalog.Messaging\Catalog.Messaging.csproj" />
     </ItemGroup>
 
     <ItemGroup>
