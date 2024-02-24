@@ -3,6 +3,8 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Product;
+using MassTransit;
+using MassTransit.KafkaIntegration;
 
 namespace Catalog.Domain.Services.ProductService;
 
@@ -10,13 +12,16 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductValidator _productValidator;
+    private readonly ITopicProducer<ProductEntity> _productProducer;
 
     public ProductService(
         IUnitOfWork unitOfWork,
-        IProductValidator productValidator)
+        IProductValidator productValidator,
+        ITopicProducer<ProductEntity> productProducer)
     {
         _unitOfWork = unitOfWork;
         _productValidator = productValidator;
+        _productProducer = productProducer;
     }
 
     public async Task<Product> GetProductByIdAsync(
@@ -68,6 +73,7 @@ public class ProductService : IProductService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
+        await _productProducer.Produce(productEntity, cancellationToken);
         return productEntity.ToProduct(productCreate.Categories);
     }
 
