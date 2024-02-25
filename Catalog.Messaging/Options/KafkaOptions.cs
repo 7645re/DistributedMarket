@@ -17,4 +17,6 @@ public class KafkaOptions
     public string CategoryUpdateTopic { get; set; } = string.Empty;
     
     public string CategoryDeleteTopic { get; set; } = string.Empty;
+    
+    public string GetHost() => $"{Address}:{Port}";
 }

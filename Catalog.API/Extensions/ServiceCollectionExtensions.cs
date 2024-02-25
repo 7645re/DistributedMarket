@@ -9,6 +9,8 @@ using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
 using Catalog.Messaging.Events;
+using Catalog.Messaging.Events.Category;
+using Catalog.Messaging.Events.Product;
 using Catalog.Messaging.Options;
 using MassTransit;
 using MassTransit.KafkaIntegration;
@@ -79,9 +81,14 @@ public static class ServiceCollectionExtensions
                     r.AddProducer<Guid, ProductCreateEvent>(kafkaOptions.ProductCreateTopic);
                     r.AddProducer<Guid, ProductUpdateEvent>(kafkaOptions.ProductUpdateTopic);
                     r.AddProducer<Guid, ProductDeleteEvent>(kafkaOptions.ProductDeleteTopic);
+
+                    r.AddProducer<Guid, CategoryCreateEvent>(kafkaOptions.CategoryCreateTopic);
+                    r.AddProducer<Guid, CategoryUpdateEvent>(kafkaOptions.CategoryUpdateTopic);
+                    r.AddProducer<Guid, CategoryDeleteEvent>(kafkaOptions.CategoryDeleteTopic);
+                    
                     r.UsingKafka((context, cfg) =>
                     {
-                        cfg.Host("localhost:9092");
+                        cfg.Host(kafkaOptions.GetHost());
                     });
                 });
             });

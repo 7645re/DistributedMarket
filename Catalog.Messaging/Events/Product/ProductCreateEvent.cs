@@ -1,4 +1,4 @@
-namespace Catalog.Messaging.Events;
+namespace Catalog.Messaging.Events.Product;
 
 public class ProductCreateEvent
 {

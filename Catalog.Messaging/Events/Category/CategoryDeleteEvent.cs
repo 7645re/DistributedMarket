@@ -1,6 +1,6 @@
-namespace Catalog.Messaging.Events;
+namespace Catalog.Messaging.Events.Category;
 
-public class ProductDeleteEvent
+public class CategoryDeleteEvent
 {
     public int Id { get; set; }
     

@@ -1,4 +1,4 @@
-namespace Catalog.Messaging.Events;
+namespace Catalog.Messaging.Events.Product;
 
 public class ProductUpdateEvent
 {
@@ -23,4 +23,6 @@ public class ProductUpdateEvent
     public IList<int> OldCategories { get; set; } = Array.Empty<int>();
     
     public IList<int>? NewCategories { get; set; }
+    
+    public DateTimeOffset Timestamp { get; set; }
 }

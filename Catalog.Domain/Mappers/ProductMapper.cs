@@ -3,6 +3,7 @@ using Catalog.Domain.Dto.Category;
 using Catalog.Domain.Dto.Product;
 using Catalog.Domain.Models;
 using Catalog.Messaging.Events;
+using Catalog.Messaging.Events.Product;
 
 namespace Catalog.Domain.Mappers;
 
@@ -78,11 +79,12 @@ public static class ProductMapper
             Name = productCreate.Name,
             Price = productCreate.Price,
             Description = productCreate.Description,
-            Count = productCreate.Count
+            Count = productCreate.Count,
+            Timestamp = DateTime.UtcNow
         };
     }
     
-    public static ProductUpdateEvent ToProductUpdateEvent(this ProductEntity productEntity,
+    public static ProductUpdateEvent  ToProductUpdateEvent(this ProductEntity productEntity,
         ProductUpdate productUpdate)
     {
         return new ProductUpdateEvent
@@ -97,7 +99,8 @@ public static class ProductMapper
             OldDescription = productEntity.Description,
             NewDescription = productUpdate.Description,
             OldCategories = productEntity.Categories.Select(c => c.Id).ToArray(),
-            NewCategories = productUpdate.Categories
+            NewCategories = productUpdate.Categories,
+            Timestamp = DateTime.UtcNow
         };
     }
 }

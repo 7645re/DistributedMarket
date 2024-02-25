@@ -4,6 +4,7 @@ using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Product;
 using Catalog.Messaging.Events;
+using Catalog.Messaging.Events.Product;
 using MassTransit;
 using MassTransit.KafkaIntegration;
 
@@ -97,6 +98,7 @@ public class ProductService : IProductService
 
         await _productValidator.ValidateAsync(productUpdate, productEntityById, cancellationToken);
 
+        var productEntityForEvent = productEntityById.Clone();
         UpdateChangedFields(productUpdate, productEntityById);
         int[]? productCategoriesForDelete = null;
         ProductEntityCategoryEntity[]? productCategoriesForAdd = null;
@@ -115,12 +117,10 @@ public class ProductService : IProductService
             productCategoriesForDelete = oldCategoriesIds.Except(productUpdate.Categories).ToArray();
         }
 
-
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var productEntityWithoutCategories = productEntityById;
-            productEntityWithoutCategories.Categories = Array.Empty<CategoryEntity>();
-            _unitOfWork.ProductRepository.Update(productEntityWithoutCategories);
+            productEntityById.Categories = Array.Empty<CategoryEntity>();
+            _unitOfWork.ProductRepository.Update(productEntityById);
             if (productCategoriesForAdd is not null)
                 _unitOfWork.ProductCategoryRepository.AddRange(productCategoriesForAdd);
             if (productCategoriesForDelete is not null)
@@ -132,7 +132,7 @@ public class ProductService : IProductService
 
         await _productUpdateProducer.Produce(
             Guid.NewGuid(),
-            productEntityById.ToProductUpdateEvent(productUpdate),
+            productEntityForEvent.ToProductUpdateEvent(productUpdate),
             cancellationToken);
         
         return productEntityById.ToProduct(productUpdate.Categories);
@@ -156,7 +156,7 @@ public class ProductService : IProductService
     public async Task DeleteProductByIdAsync(
         int id, CancellationToken cancellationToken)
     {
-        var existingProduct = _unitOfWork.ProductRepository.GetByIdAsync(id, cancellationToken);
+        var existingProduct = await _unitOfWork.ProductRepository.GetByIdAsync(id, cancellationToken);
         if (existingProduct is null)
             throw new InvalidOperationException($"A product with such an ID: {id} does not exist");
 
