@@ -1,13 +1,42 @@
 ﻿networks:
-  Catalog.API:
+  DistributedMarket:
     driver: bridge
 
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - DistributedMarket
+        
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG_RETENTION_MS: 7000
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - DistributedMarket
+  
   catalog.database:
     container_name: Catalog.Database
     image: mcr.microsoft.com/mssql/server:latest
     networks:
-      - Catalog.API
+      - DistributedMarket
     environment:
       SA_PASSWORD: "NotWeakPassword123"
       ACCEPT_EULA: "Y"
@@ -20,8 +49,7 @@ services:
     ports: 
       - "1433:1433"
     volumes:
-      - mssql-data:/var/lib/mssql/data
-
+      - mssql-data-catalog:/var/lib/mssql/data
   catalog.migrator:
     container_name: Catalog.Migrator
     build:
@@ -30,11 +58,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
     networks: 
-      - Catalog.API
+      - DistributedMarket
     depends_on: 
       catalog.database:
         condition: service_healthy
-
   catalog.api:
     container_name: Catalog.API
     build:
@@ -45,9 +72,55 @@ services:
     ports:
       - "80:80"
     networks:
-      - Catalog.API
+      - DistributedMarket
     depends_on: 
       - catalog.migrator
 
+  customers.database:
+    container_name: Customers.Database
+    image: mcr.microsoft.com/mssql/server:latest
+    networks:
+      - DistributedMarket
+    environment:
+      SA_PASSWORD: "NotWeakPassword123"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "1434:1433"
+    volumes:
+      - mssql-data-customers:/var/lib/mssql/data
+  customers.migrator:
+    container_name: Customers.Migrator
+    build:
+      context: .
+      dockerfile: Customers.Migrator/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+    networks:
+      - DistributedMarket
+    depends_on:
+      customers.database:
+        condition: service_healthy
+  customers.api:
+    container_name: Customers.API
+    build:
+      context: .
+      dockerfile: Customers.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+    ports:
+      - "81:80"
+    networks:
+      - DistributedMarket
+    depends_on:
+      - customers.migrator
+      - kafka
+
 volumes:
-  mssql-data:
+  mssql-data-catalog:
+  mssql-data-customers:

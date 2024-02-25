@@ -13,6 +13,16 @@ public class CategoryEntity
     [Required]
     [MaxLength(20)]
     public string Name { get; set; }
-    
-    public ICollection<ProductEntity> Products { get; set; }
+
+    public ICollection<ProductEntity> Products { get; set; } = new List<ProductEntity>();
+
+    public CategoryEntity Clone()
+    {
+        return new CategoryEntity
+        {
+            Id = Id,
+            Name = Name,
+            Products = new List<ProductEntity>(Products)
+        };
+    }
 }

@@ -1,4 +1,3 @@
-using Catalog.Domain.Dto;
 using Catalog.Domain.Dto.Product;
 
 namespace Catalog.Domain.Services.ProductService;

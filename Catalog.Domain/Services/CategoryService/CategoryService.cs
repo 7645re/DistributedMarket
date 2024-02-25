@@ -3,19 +3,31 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
+using Catalog.Messaging.Events.Category;
+using MassTransit.KafkaIntegration;
 
 namespace Catalog.Domain.Services.CategoryService;
 
 public class CategoryService : ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork;
-
     private readonly ICategoryValidator _categoryValidator;
+    private readonly ITopicProducer<Guid, CategoryCreateEvent> _categoryCreateProducer;
+    private readonly ITopicProducer<Guid, CategoryUpdateEvent> _categoryUpdateProducer;
+    private readonly ITopicProducer<Guid, CategoryDeleteEvent> _categoryDeleteProducer;
 
-    public CategoryService(IUnitOfWork unitOfWork, ICategoryValidator categoryValidator)
+    public CategoryService(
+        IUnitOfWork unitOfWork,
+        ICategoryValidator categoryValidator,
+        ITopicProducer<Guid, CategoryCreateEvent> categoryCreateProducer,
+        ITopicProducer<Guid, CategoryUpdateEvent> categoryUpdateProducer,
+        ITopicProducer<Guid, CategoryDeleteEvent> categoryDeleteProducer)
     {
         _unitOfWork = unitOfWork;
         _categoryValidator = categoryValidator;
+        _categoryCreateProducer = categoryCreateProducer;
+        _categoryUpdateProducer = categoryUpdateProducer;
+        _categoryDeleteProducer = categoryDeleteProducer;
     }
 
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
@@ -41,6 +53,9 @@ public class CategoryService : ICategoryService
             categoryEntity = _unitOfWork.CategoryRepository.Add(categoryEntity);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
+        
+        var categoryCreateEvent = categoryEntity.ToCategoryCreateEvent();
+        await _categoryCreateProducer.Produce(Guid.NewGuid(), categoryCreateEvent, cancellationToken);
         return categoryEntity.ToCategory();
     }
 
@@ -51,12 +66,17 @@ public class CategoryService : ICategoryService
             throw new InvalidOperationException($"Category with id {categoryUpdate.Id} not found");
 
         await _categoryValidator.ValidateAsync(categoryEntity, categoryUpdate, cancellationToken);
+        var categoryEntityForEvent = categoryEntity.Clone();
+        
         UpdateChangedFields(categoryUpdate, categoryEntity);
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             _unitOfWork.CategoryRepository.Update(categoryEntity);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
+
+        var ev = categoryEntityForEvent.ToCategoryUpdateEvent(categoryUpdate);
+        await _categoryUpdateProducer.Produce(Guid.NewGuid(), ev, cancellationToken);
         return categoryEntity.ToCategory();
     }
 
@@ -74,6 +94,12 @@ public class CategoryService : ICategoryService
         {
             _unitOfWork.CategoryRepository.DeleteById(id);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }, cancellationToken);
+
+        await _categoryDeleteProducer.Produce(Guid.NewGuid(), new CategoryDeleteEvent
+        {
+            Id = id,
+            Timestamp = DateTimeOffset.Now
         }, cancellationToken);
     }
 

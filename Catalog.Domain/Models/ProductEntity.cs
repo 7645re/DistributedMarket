@@ -27,4 +27,17 @@ public class ProductEntity
     public int Count { get; set; }
 
     public ICollection<CategoryEntity> Categories { get; set; } = new List<CategoryEntity>();
+
+    public ProductEntity Clone()
+    {
+        return new ProductEntity
+        {
+            Id = Id,
+            Name = Name,
+            Price = Price,
+            Description = Description,
+            Count = Count,
+            Categories = new List<CategoryEntity>(Categories)
+        };
+    }
 }

@@ -1,4 +1,5 @@
 using Catalog.Domain;
+using Catalog.Domain.Options;
 using Catalog.Domain.Repositories.Category;
 using Catalog.Domain.Repositories.Product;
 using Catalog.Domain.Repositories.ProductCategory;
@@ -7,7 +8,12 @@ using Catalog.Domain.Services.ProductService;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
-using Catalog.Migrator.Options;
+using Catalog.Messaging.Events;
+using Catalog.Messaging.Events.Category;
+using Catalog.Messaging.Events.Product;
+using Catalog.Messaging.Options;
+using MassTransit;
+using MassTransit.KafkaIntegration;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.API.Extensions;
@@ -26,7 +32,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
         return serviceCollection;
     }
-    
+
     public static IServiceCollection AddValidators(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IProductValidator, ProductValidator>();
@@ -41,7 +47,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<ICategoryRepository, CategoryRepository>();
         return serviceCollection;
     }
-    
+
     public static IServiceCollection AddDbContext(
         this IServiceCollection serviceCollection,
         WebApplicationBuilder builder)
@@ -53,5 +59,38 @@ public static class ServiceCollectionExtensions
                 .Get<DatabaseOptions>()
                 ?.ConnectionString)
         );
+    }
+
+    public static IServiceCollection AddKafka(this IServiceCollection serviceCollection,
+        WebApplicationBuilder builder)
+    {
+        var kafkaOptions = builder
+            .Configuration
+            .GetSection("Kafka")
+            .Get<KafkaOptions>()!;
+
+        return serviceCollection
+            .AddMassTransitHostedService()
+            .AddMassTransit(x =>
+            {
+                x.SetKebabCaseEndpointNameFormatter();
+                x.UsingInMemory((context,cfg) => cfg.ConfigureEndpoints(context));
+                
+                x.AddRider(r =>
+                {
+                    r.AddProducer<Guid, ProductCreateEvent>(kafkaOptions.ProductCreateTopic);
+                    r.AddProducer<Guid, ProductUpdateEvent>(kafkaOptions.ProductUpdateTopic);
+                    r.AddProducer<Guid, ProductDeleteEvent>(kafkaOptions.ProductDeleteTopic);
+
+                    r.AddProducer<Guid, CategoryCreateEvent>(kafkaOptions.CategoryCreateTopic);
+                    r.AddProducer<Guid, CategoryUpdateEvent>(kafkaOptions.CategoryUpdateTopic);
+                    r.AddProducer<Guid, CategoryDeleteEvent>(kafkaOptions.CategoryDeleteTopic);
+                    
+                    r.UsingKafka((context, cfg) =>
+                    {
+                        cfg.Host(kafkaOptions.GetHost());
+                    });
+                });
+            });
     }
 }

@@ -17,5 +17,5 @@ public class ProductUpdateRequest
     public string? Description { get; set; }
 
     [JsonPropertyName("categories")]
-    public ICollection<int>? Categories { get; set; }
+    public IList<int>? Categories { get; set; }
 }

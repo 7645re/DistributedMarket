@@ -8,7 +8,6 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Catalog.API/Catalog.API.csproj", "Catalog.API/"]
 COPY ["Catalog.Domain/Catalog.Domain.csproj", "Catalog.Domain/"]
-COPY ["Catalog.Migrator/Catalog.Migrator.csproj", "Catalog.Migrator/"]
 RUN dotnet restore "Catalog.API/Catalog.API.csproj"
 COPY . .
 WORKDIR "/src/Catalog.API"
