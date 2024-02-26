@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Carts.Domain.Repositories;
 
-public abstract class BaseRedisRepository<T> : IBaseRedisRepository<T>
+public abstract class BaseRedisRepository<T>
 {
     private readonly IDistributedCache _cache;
 
@@ -14,34 +14,31 @@ public abstract class BaseRedisRepository<T> : IBaseRedisRepository<T>
 
     public async Task<T?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
     {
-        var entity = await _cache.GetStringAsync(key, cancellationToken);
+        var redisKey = $"{typeof(T).Name}:{key}";
+        var entity = await _cache.GetStringAsync(redisKey, cancellationToken);
         if (entity is null)
             return default;
 
         return JsonSerializer.Deserialize<T>(entity);
     }
 
-    public async Task CreateAsync(
+    public virtual async Task CreateAsync(
         string key,
         T entity,
         TimeSpan? expiry = null,
         CancellationToken cancellationToken = default)
     {
+        var redisKey = $"{typeof(T).Name}:{key}";
         var serializedEntity = JsonSerializer.Serialize(entity);
-        await _cache.SetStringAsync(key, serializedEntity, new DistributedCacheEntryOptions
+        await _cache.SetStringAsync(redisKey, serializedEntity, new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = expiry
         }, cancellationToken);
     }
 
-    public async Task UpdateAsync(string key, T entity, CancellationToken cancellationToken = default)
+    public virtual async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        var serializedEntity = JsonSerializer.Serialize(entity);
-        await _cache.SetStringAsync(key, serializedEntity, cancellationToken);
-    }
-
-    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
-    {
-        await _cache.RemoveAsync(key, cancellationToken);
+        var redisKey = $"{typeof(T).Name}:{key}";
+        await _cache.RemoveAsync(redisKey, cancellationToken);
     }
 }

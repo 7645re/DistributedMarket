@@ -2,6 +2,7 @@ using Carts.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddOptions(builder);
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddRedis(builder);

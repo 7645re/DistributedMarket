@@ -1,9 +1,9 @@
-using Carts.API.Options;
+using Carts.Domain.Options;
 using Carts.Domain.Repositories.Cart;
 using Carts.Domain.Repositories.CartByProduct;
-using Carts.Domain.Services;
 using Carts.Domain.Services.CartService;
 using Carts.Messaging.Consumers;
+using Catalog.Messaging.Events.Product;
 using Catalog.Messaging.Options;
 using MassTransit;
 
@@ -48,17 +48,31 @@ public static class ServiceCollectionExtensions
             .AddMassTransit(x =>
             {
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingInMemory((context,cfg) => cfg.ConfigureEndpoints(context));
+                x.UsingInMemory();
                 
                 x.AddRider(r =>
                 {
-                    r.AddConsumer<ProductCreateConsumer>();
+                    r.AddConsumer<ProductDeleteConsumer>();
                     
                     r.UsingKafka((context, cfg) =>
                     {
+                        cfg.TopicEndpoint<Guid, ProductDeleteEvent>(
+                            kafkaOptions.ProductDeleteTopic,
+                            "consumer-group-1", e =>
+                            {
+                                e.ConfigureConsumer<ProductDeleteConsumer>(context);
+                            });
+                        
                         cfg.Host(kafkaOptions.GetHost());
                     });
                 });
             });
+    }
+
+    public static IServiceCollection AddOptions(this IServiceCollection serviceCollection,
+        WebApplicationBuilder builder)
+    {
+        serviceCollection.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
+        return serviceCollection;
     }
 }
