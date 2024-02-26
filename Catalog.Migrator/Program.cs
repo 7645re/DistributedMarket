@@ -1,3 +1,4 @@
-﻿using Catalog.Migrator;
+﻿using System.Reflection;
+using Shared.Migrator;
 
-MigrationRunner.Migrate();
+MigrationRunner.Migrate(DatabaseType.Mssql, Assembly.GetExecutingAssembly(), "Catalog");

@@ -1,4 +1,4 @@
-namespace Catalog.Migrator.Options;
+namespace Shared.Migrator;
 
 public class DatabaseOptions
 {
