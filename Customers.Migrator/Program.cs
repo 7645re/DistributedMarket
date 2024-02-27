@@ -1,3 +1,4 @@
-﻿using Customers.Migrator;
+﻿using System.Reflection;
+using Shared.Migrator;
 
-MigrationRunner.Migrate();
+MigrationRunner.Migrate(DatabaseType.Postgresql, Assembly.GetExecutingAssembly());

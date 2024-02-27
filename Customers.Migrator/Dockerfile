@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Customers.Migrator/Customers.Migrator.csproj", "Customers.Migrator/"]
+COPY ["Shared.Migrator/Shared.Migrator.csproj", "Shared.Migrator/"]
 RUN dotnet restore "Customers.Migrator/Customers.Migrator.csproj"
 COPY . .
 WORKDIR "/src/Customers.Migrator"
@@ -18,5 +19,3 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Customers.Migrator.dll"]
-
-ENV ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT

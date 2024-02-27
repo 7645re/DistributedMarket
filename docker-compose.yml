@@ -121,6 +121,29 @@ services:
       - customers.migrator
       - kafka
 
+
+  cart.redis:
+    container_name: Cart.Redis
+    image: redis:latest
+    networks:
+      - DistributedMarket
+    ports:
+      - "6379:6379"
+
+  cart.api:
+    container_name: Cart.API
+    build:
+      context: .
+      dockerfile: Cart.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+    ports:
+      - "82:80"
+    networks:
+      - DistributedMarket
+    depends_on:
+      - cart.redis
+
 volumes:
   mssql-data-catalog:
   mssql-data-customers:

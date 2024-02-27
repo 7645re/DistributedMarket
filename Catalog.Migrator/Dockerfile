@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Catalog.Migrator/Catalog.Migrator.csproj", "Catalog.Migrator/"]
+COPY ["Shared.Migrator/Shared.Migrator.csproj", "Shared.Migrator/"]
 RUN dotnet restore "Catalog.Migrator/Catalog.Migrator.csproj"
 COPY . .
 WORKDIR "/src/Catalog.Migrator"
@@ -18,5 +19,3 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Catalog.Migrator.dll"]
-
-ENV ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT

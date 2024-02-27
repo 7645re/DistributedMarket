@@ -74,8 +74,8 @@ public static class ServiceCollectionExtensions
             .AddMassTransit(x =>
             {
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingInMemory((context,cfg) => cfg.ConfigureEndpoints(context));
-                
+                x.UsingInMemory();
+
                 x.AddRider(r =>
                 {
                     r.AddProducer<Guid, ProductCreateEvent>(kafkaOptions.ProductCreateTopic);
