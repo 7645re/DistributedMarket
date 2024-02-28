@@ -20,37 +20,37 @@ public class ProductServiceDecorator : IProductService
 
     public async Task<Product> GetProductByIdAsync(int id, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(GetProductByIdAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(GetProductByIdAsync)}"))
             return await _productService.GetProductByIdAsync(id, cancellationToken);
     }
 
     public async Task<IEnumerable<Product>> GetProductByCategoryIdAsync(int categoryId, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(GetProductByCategoryIdAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(GetProductByCategoryIdAsync)}"))
             return await _productService.GetProductByCategoryIdAsync(categoryId, cancellationToken);
     }
 
     public async Task<IEnumerable<Product>> GetProductByCategoriesIdsAsync(IEnumerable<int> categoriesIds, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(GetProductByCategoriesIdsAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(GetProductByCategoriesIdsAsync)}"))
             return await _productService.GetProductByCategoriesIdsAsync(categoriesIds, cancellationToken);
     }
 
     public async Task<Product> CreateProductAsync(ProductCreate productCreate, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(CreateProductAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(CreateProductAsync)}"))
             return await _productService.CreateProductAsync(productCreate, cancellationToken);
     }
 
     public async Task<Product> UpdateProductAsync(ProductUpdate productUpdate, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(UpdateProductAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(UpdateProductAsync)}"))
             return await _productService.UpdateProductAsync(productUpdate, cancellationToken);
     }
 
     public async Task DeleteProductByIdAsync(int id, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(DeleteProductByIdAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(DeleteProductByIdAsync)}"))
             await _productService.DeleteProductByIdAsync(id, cancellationToken);
     }
 }

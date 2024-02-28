@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
+      <ProjectReference Include="..\Catalog.Messaging\Catalog.Messaging.csproj" />
       <ProjectReference Include="..\Shared.DiagnosticContext\Shared.DiagnosticContext.csproj" />
       <ProjectReference Include="..\Shared.Messaging\Shared.Messaging.csproj" />
     </ItemGroup>

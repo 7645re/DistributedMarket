@@ -1,6 +1,5 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
-using Catalog.Messaging.Events.Category;
 using MassTransit.KafkaIntegration;
 using Prometheus;
 using Shared.DiagnosticContext;

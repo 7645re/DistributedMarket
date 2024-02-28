@@ -8,13 +8,13 @@ using Catalog.Domain.Services.ProductService;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
-using Catalog.Messaging.Events;
-using Catalog.Messaging.Events.Category;
-using Catalog.Messaging.Events.Product;
-using Catalog.Messaging.Options;
+using Catalog.Messaging.Producers.CategoryEventProducer;
 using MassTransit;
 using MassTransit.KafkaIntegration;
 using Microsoft.EntityFrameworkCore;
+using Shared.Messaging.Events.Category;
+using Shared.Messaging.Events.Product;
+using Shared.Messaging.Options;
 
 namespace Catalog.API.Extensions;
 
@@ -76,7 +76,7 @@ public static class ServiceCollectionExtensions
             .GetSection("Kafka")
             .Get<KafkaOptions>()!;
 
-        return serviceCollection
+        serviceCollection
             .AddMassTransitHostedService()
             .AddMassTransit(x =>
             {
@@ -99,5 +99,10 @@ public static class ServiceCollectionExtensions
                     });
                 });
             });
+
+        serviceCollection.AddScoped<ICategoryEventProducer, CategoryEventProducer>();
+        serviceCollection.Decorate<ICategoryEventProducer, CategoryEventProducerDecorator>();
+        
+        return serviceCollection;
     }
 }

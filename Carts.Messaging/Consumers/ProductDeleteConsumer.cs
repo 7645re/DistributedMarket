@@ -1,6 +1,6 @@
 using Carts.Domain.Services.CartService;
-using Catalog.Messaging.Events.Product;
 using MassTransit;
+using Shared.Messaging.Events.Product;
 
 namespace Carts.Messaging.Consumers;
 

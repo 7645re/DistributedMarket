@@ -1,9 +1,7 @@
-using Catalog.Domain.Dto;
 using Catalog.Domain.Dto.Category;
 using Catalog.Domain.Dto.Product;
 using Catalog.Domain.Models;
-using Catalog.Messaging.Events;
-using Catalog.Messaging.Events.Product;
+using Shared.Messaging.Events.Product;
 
 namespace Catalog.Domain.Mappers;
 

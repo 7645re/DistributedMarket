@@ -24,6 +24,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Carts.Domain\Carts.Domain.csproj" />
       <ProjectReference Include="..\Carts.Messaging\Carts.Messaging.csproj" />
+      <ProjectReference Include="..\Catalog.Messaging\Catalog.Messaging.csproj" />
       <ProjectReference Include="..\Shared.Messaging\Shared.Messaging.csproj" />
     </ItemGroup>
 

@@ -1,4 +1,4 @@
-namespace Catalog.Messaging.Options;
+namespace Shared.Messaging.Options;
 
 public class KafkaOptions
 {

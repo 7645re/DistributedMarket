@@ -1,4 +1,4 @@
-namespace Catalog.Messaging.Events.Product;
+namespace Shared.Messaging.Events.Product;
 
 public class ProductUpdateEvent
 {

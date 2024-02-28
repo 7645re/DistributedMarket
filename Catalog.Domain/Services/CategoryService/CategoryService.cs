@@ -3,8 +3,9 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
-using Catalog.Messaging.Events.Category;
+using Catalog.Messaging.Producers.CategoryEventProducer;
 using MassTransit.KafkaIntegration;
+using Shared.Messaging.Events.Category;
 
 namespace Catalog.Domain.Services.CategoryService;
 
@@ -12,22 +13,16 @@ public class CategoryService : ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICategoryValidator _categoryValidator;
-    private readonly ITopicProducer<Guid, CategoryCreateEvent> _categoryCreateProducer;
-    private readonly ITopicProducer<Guid, CategoryUpdateEvent> _categoryUpdateProducer;
-    private readonly ITopicProducer<Guid, CategoryDeleteEvent> _categoryDeleteProducer;
+    private readonly ICategoryEventProducer _categoryEventProducer;
 
     public CategoryService(
         IUnitOfWork unitOfWork,
         ICategoryValidator categoryValidator,
-        ITopicProducer<Guid, CategoryCreateEvent> categoryCreateProducer,
-        ITopicProducer<Guid, CategoryUpdateEvent> categoryUpdateProducer,
-        ITopicProducer<Guid, CategoryDeleteEvent> categoryDeleteProducer)
+        ICategoryEventProducer categoryEventProducer)
     {
         _unitOfWork = unitOfWork;
         _categoryValidator = categoryValidator;
-        _categoryCreateProducer = categoryCreateProducer;
-        _categoryUpdateProducer = categoryUpdateProducer;
-        _categoryDeleteProducer = categoryDeleteProducer;
+        _categoryEventProducer = categoryEventProducer;
     }
 
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
@@ -55,7 +50,7 @@ public class CategoryService : ICategoryService
         }, cancellationToken);
         
         var categoryCreateEvent = categoryEntity.ToCategoryCreateEvent();
-        await _categoryCreateProducer.Produce(Guid.NewGuid(), categoryCreateEvent, cancellationToken);
+        await _categoryEventProducer.ProduceCreateEventAsync(categoryCreateEvent, cancellationToken);
         return categoryEntity.ToCategory();
     }
 
@@ -76,7 +71,7 @@ public class CategoryService : ICategoryService
         }, cancellationToken);
 
         var ev = categoryEntityForEvent.ToCategoryUpdateEvent(categoryUpdate);
-        await _categoryUpdateProducer.Produce(Guid.NewGuid(), ev, cancellationToken);
+        await _categoryEventProducer.ProduceUpdateEventAsync(ev, cancellationToken);
         return categoryEntity.ToCategory();
     }
 
@@ -96,7 +91,7 @@ public class CategoryService : ICategoryService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);
 
-        await _categoryDeleteProducer.Produce(Guid.NewGuid(), new CategoryDeleteEvent
+        await _categoryEventProducer.ProduceDeleteEventAsync(new CategoryDeleteEvent
         {
             Id = id,
             Timestamp = DateTimeOffset.Now

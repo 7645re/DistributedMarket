@@ -5,8 +5,6 @@ namespace Shared.DiagnosticContext;
 
 public class DiagnosticContextStorage : IDiagnosticContextStorage
 {
-    private readonly IDictionary<string, DiagnosticContext> _storage = new Dictionary<string, DiagnosticContext>();
-    
     private readonly Counter _metricCounterDuration = Metrics.CreateCounter(
         "method_execution_duration",
         "Counts the duration of method executions in milliseconds",
@@ -29,9 +27,7 @@ public class DiagnosticContextStorage : IDiagnosticContextStorage
     public IDisposable Measure(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
-        {
             throw new ArgumentException("Key cannot be null or empty", nameof(key));
-        }
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -39,25 +35,8 @@ public class DiagnosticContextStorage : IDiagnosticContextStorage
         return new DisposableAction(() =>
         {
             stopwatch.Stop();
-
-            if (_storage.ContainsKey(key))
-            {
-                _storage[key].ElapsedMilliseconds += (int)stopwatch.ElapsedMilliseconds;
-                _storage[key].Count++;
-                _metricCounterDuration.WithLabels(key).Inc(_storage[key].ElapsedMilliseconds);
-                _metricCounterExecution.WithLabels(key).Inc(_storage[key].Count);
-                Console.WriteLine($"Method: {key}, Milliseconds: {_storage[key].ElapsedMilliseconds} ms, Count: {_storage[key].Count}");
-                return;
-            }
-
-            _storage.Add(key, new DiagnosticContext
-            {
-                ElapsedMilliseconds = (int)stopwatch.ElapsedMilliseconds,
-                Count = 1
-            });
-            _metricCounterDuration.WithLabels(key).Inc(_storage[key].ElapsedMilliseconds);
-            _metricCounterExecution.WithLabels(key).Inc(_storage[key].Count);
-            Console.WriteLine($"Method: {key}, Milliseconds: {_storage[key].ElapsedMilliseconds} ms, Count: {_storage[key].Count}");
+            _metricCounterDuration.WithLabels(key).Inc((int)stopwatch.ElapsedMilliseconds);
+            _metricCounterExecution.WithLabels(key).Inc();
         });
     }
 }

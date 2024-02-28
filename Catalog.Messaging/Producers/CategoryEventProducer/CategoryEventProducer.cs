@@ -1,6 +1,5 @@
-﻿using Catalog.Messaging.Events.Category;
-using MassTransit.KafkaIntegration;
-using Shared.DiagnosticContext;
+﻿using MassTransit.KafkaIntegration;
+using Shared.Messaging.Events.Category;
 
 namespace Catalog.Messaging.Producers.CategoryEventProducer;
 
@@ -9,23 +8,19 @@ public class CategoryEventProducer : ICategoryEventProducer
     private readonly ITopicProducer<Guid, CategoryCreateEvent> _categoryCreateProducer;
     private readonly ITopicProducer<Guid, CategoryUpdateEvent> _categoryUpdateProducer;
     private readonly ITopicProducer<Guid, CategoryDeleteEvent> _categoryDeleteProducer;
-    private readonly IDiagnosticContextStorage _diagnosticContextStorage;
     
     public CategoryEventProducer(
         ITopicProducer<Guid, CategoryCreateEvent> categoryCreateProducer,
         ITopicProducer<Guid, CategoryUpdateEvent> categoryUpdateProducer,
-        ITopicProducer<Guid, CategoryDeleteEvent> categoryDeleteProducer,
-        IDiagnosticContextStorage diagnosticContextStorage)
+        ITopicProducer<Guid, CategoryDeleteEvent> categoryDeleteProducer)
     {
         _categoryCreateProducer = categoryCreateProducer;
         _categoryUpdateProducer = categoryUpdateProducer;
         _categoryDeleteProducer = categoryDeleteProducer;
-        _diagnosticContextStorage = diagnosticContextStorage;
     }
 
     public async Task ProduceCreateEventAsync(CategoryCreateEvent createEvent, CancellationToken cancellationToken)
     {
-        
         await _categoryCreateProducer.Produce(Guid.NewGuid(), createEvent, cancellationToken);
     }
 

@@ -30,7 +30,7 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(SaveChangesAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(UnitOfWork)}.{nameof(SaveChangesAsync)}"))
             return await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -53,7 +53,7 @@ public class UnitOfWork : IUnitOfWork
         CancellationToken cancellationToken,
         Action<DbUpdateException>? onException)
     {
-        using (_diagnosticContextStorage.Measure(nameof(ExecuteInTransactionAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(UnitOfWork)}.{nameof(ExecuteInTransactionAsync)}"))
         {
             try
             {

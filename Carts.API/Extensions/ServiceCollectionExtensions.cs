@@ -3,9 +3,9 @@ using Carts.Domain.Repositories.Cart;
 using Carts.Domain.Repositories.CartByProduct;
 using Carts.Domain.Services.CartService;
 using Carts.Messaging.Consumers;
-using Catalog.Messaging.Events.Product;
-using Catalog.Messaging.Options;
 using MassTransit;
+using Shared.Messaging.Events.Product;
+using Shared.Messaging.Options;
 
 namespace Carts.API.Extensions;
 
@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
             .GetSection("Kafka")
             .Get<KafkaOptions>()!;
 
-        return serviceCollection
+        serviceCollection
             .AddMassTransitHostedService()
             .AddMassTransit(x =>
             {
@@ -67,6 +67,8 @@ public static class ServiceCollectionExtensions
                     });
                 });
             });
+
+        return serviceCollection;
     }
 
     public static IServiceCollection AddOptions(this IServiceCollection serviceCollection,

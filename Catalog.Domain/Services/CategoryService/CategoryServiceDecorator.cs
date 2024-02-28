@@ -19,31 +19,31 @@ public class CategoryServiceDecorator : ICategoryService
 
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(GetCategoriesAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(GetCategoriesAsync)}"))
             return await _categoryService.GetCategoriesAsync(cancellationToken);
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(GetCategoryByIdAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(GetCategoryByIdAsync)}"))
             return await _categoryService.GetCategoryByIdAsync(id, cancellationToken); 
     }
 
     public async Task<Category> CreateCategoryAsync(CategoryCreate categoryCreate, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(CreateCategoryAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(CreateCategoryAsync)}"))
             return await _categoryService.CreateCategoryAsync(categoryCreate, cancellationToken);
     }
 
     public async Task<Category> UpdateCategoryAsync(CategoryUpdate categoryUpdate, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(UpdateCategoryAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(UpdateCategoryAsync)}"))
             return await _categoryService.UpdateCategoryAsync(categoryUpdate, cancellationToken);
     }
 
     public async Task DeleteCategoryByIdAsync(int id, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure(nameof(DeleteCategoryByIdAsync)))
+        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(DeleteCategoryByIdAsync)}"))
             await _categoryService.DeleteCategoryByIdAsync(id, cancellationToken); 
     }
 }

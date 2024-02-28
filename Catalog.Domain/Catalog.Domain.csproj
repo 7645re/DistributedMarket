@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Catalog.Messaging\Catalog.Messaging.csproj" />
       <ProjectReference Include="..\Shared.DiagnosticContext\Shared.DiagnosticContext.csproj" />
       <ProjectReference Include="..\Shared.Messaging\Shared.Messaging.csproj" />
     </ItemGroup>
