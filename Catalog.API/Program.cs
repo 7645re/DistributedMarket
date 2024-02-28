@@ -1,5 +1,6 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +23,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpMetrics();
+app.MapMetrics();
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
