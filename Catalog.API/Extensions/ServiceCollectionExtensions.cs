@@ -23,7 +23,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddTransient<IProductService, ProductService>();
+        serviceCollection.Decorate<IProductService, ProductServiceDecorator>();
+
         serviceCollection.AddTransient<ICategoryService, CategoryService>();
+        serviceCollection.Decorate<ICategoryService, CategoryServiceDecorator>();
+
         return serviceCollection;
     }
 
@@ -36,7 +40,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddValidators(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IProductValidator, ProductValidator>();
+        serviceCollection.Decorate<IProductValidator, ProductValidatorDecorator>();
+
         serviceCollection.AddScoped<ICategoryValidator, CategoryValidator>();
+        serviceCollection.Decorate<ICategoryValidator, CategoryValidatorDecorator>();
         return serviceCollection;
     }
 

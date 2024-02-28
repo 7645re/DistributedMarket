@@ -1,0 +1,56 @@
+﻿using Catalog.Domain.Dto.Product;
+using Shared.DiagnosticContext;
+
+namespace Catalog.Domain.Services.ProductService;
+
+public class ProductServiceDecorator : IProductService
+{
+    private readonly IProductService _productService;
+    
+    private readonly IDiagnosticContextStorage _diagnosticContextStorage;
+
+
+    public ProductServiceDecorator(
+        IProductService productService,
+        IDiagnosticContextStorage diagnosticContextStorage)
+    {
+        _productService = productService;
+        _diagnosticContextStorage = diagnosticContextStorage;
+    }
+
+    public async Task<Product> GetProductByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure(nameof(GetProductByIdAsync)))
+            return await _productService.GetProductByIdAsync(id, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Product>> GetProductByCategoryIdAsync(int categoryId, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure(nameof(GetProductByCategoryIdAsync)))
+            return await _productService.GetProductByCategoryIdAsync(categoryId, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Product>> GetProductByCategoriesIdsAsync(IEnumerable<int> categoriesIds, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure(nameof(GetProductByCategoriesIdsAsync)))
+            return await _productService.GetProductByCategoriesIdsAsync(categoriesIds, cancellationToken);
+    }
+
+    public async Task<Product> CreateProductAsync(ProductCreate productCreate, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure(nameof(CreateProductAsync)))
+            return await _productService.CreateProductAsync(productCreate, cancellationToken);
+    }
+
+    public async Task<Product> UpdateProductAsync(ProductUpdate productUpdate, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure(nameof(UpdateProductAsync)))
+            return await _productService.UpdateProductAsync(productUpdate, cancellationToken);
+    }
+
+    public async Task DeleteProductByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure(nameof(DeleteProductByIdAsync)))
+            await _productService.DeleteProductByIdAsync(id, cancellationToken);
+    }
+}

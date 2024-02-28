@@ -1,12 +1,14 @@
 using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
+using Shared.DiagnosticContext;
 
 namespace Catalog.Domain.Repositories.Category;
 
 public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepository
 {
-    public CategoryRepository(CatalogDbContext context) : base(context)
+    public CategoryRepository(CatalogDbContext context, IDiagnosticContextStorage diagnosticContextStorage) 
+        : base(context, diagnosticContextStorage)
     {
     }
 

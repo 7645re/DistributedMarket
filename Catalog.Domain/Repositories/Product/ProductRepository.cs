@@ -2,6 +2,7 @@ using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Base;
 using Catalog.Domain.Repositories.ProductCategory;
 using Microsoft.EntityFrameworkCore;
+using Shared.DiagnosticContext;
 
 namespace Catalog.Domain.Repositories.Product;
 
@@ -10,7 +11,8 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
     private readonly IProductCategoryRepository _productCategoryRepository;
 
     public ProductRepository(CatalogDbContext context,
-        IProductCategoryRepository productCategoryRepository) : base(context)
+        IProductCategoryRepository productCategoryRepository, IDiagnosticContextStorage diagnosticContextStorage) 
+        : base(context, diagnosticContextStorage)
     {
         _productCategoryRepository = productCategoryRepository;
     }
