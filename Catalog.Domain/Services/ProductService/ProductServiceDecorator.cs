@@ -1,4 +1,5 @@
 ﻿using Catalog.Domain.Dto.Product;
+using Catalog.Domain.Repositories;
 using Shared.DiagnosticContext;
 
 namespace Catalog.Domain.Services.ProductService;
@@ -16,6 +17,12 @@ public class ProductServiceDecorator : IProductService
     {
         _productService = productService;
         _diagnosticContextStorage = diagnosticContextStorage;
+    }
+
+    public Task<List<Product>> GetAllPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
+    {
+        using (_diagnosticContextStorage.Measure($"{nameof(ProductService)}.{nameof(GetAllPagedAsync)}"))
+            return _productService.GetAllPagedAsync(page, pageSize, cancellationToken);
     }
 
     public async Task<Product> GetProductByIdAsync(int id, CancellationToken cancellationToken)

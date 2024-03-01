@@ -8,7 +8,7 @@ namespace Catalog.Domain.Models;
 public class CategoryEntity
 {
     [Key]
-    public int Id { get; set; } = default!;
+    public int Id { get; set; }
     
     [Required]
     [MaxLength(20)]

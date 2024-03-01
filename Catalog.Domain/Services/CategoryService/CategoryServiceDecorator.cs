@@ -17,10 +17,10 @@ public class CategoryServiceDecorator : ICategoryService
         _diagnosticContextStorage = diagnosticContextStorage;
     }
 
-    public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
+    public async Task<List<Category>> GetAllPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(GetCategoriesAsync)}"))
-            return await _categoryService.GetCategoriesAsync(cancellationToken);
+        using (_diagnosticContextStorage.Measure($"{nameof(CategoryService)}.{nameof(GetAllPagedAsync)}"))
+            return await _categoryService.GetAllPagedAsync(page, pageSize, cancellationToken);
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id, CancellationToken cancellationToken)

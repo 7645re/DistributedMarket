@@ -9,6 +9,7 @@ using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
 using Catalog.Messaging.Producers.CategoryEventProducer;
+using Catalog.Messaging.Producers.ProductEventProducer;
 using MassTransit;
 using MassTransit.KafkaIntegration;
 using Microsoft.EntityFrameworkCore;
@@ -102,6 +103,9 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped<ICategoryEventProducer, CategoryEventProducer>();
         serviceCollection.Decorate<ICategoryEventProducer, CategoryEventProducerDecorator>();
+        
+        serviceCollection.AddScoped<IProductEventProducer, ProductEventProducer>();
+        serviceCollection.Decorate<IProductEventProducer, ProductEventProducerDecorator>();
         
         return serviceCollection;
     }

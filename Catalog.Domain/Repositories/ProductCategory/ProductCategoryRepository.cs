@@ -33,8 +33,10 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
         int categoryId,
         CancellationToken cancellationToken)
     {
-        return Set
-            .Where(e => e.CategoryId == categoryId)
-            .ToListAsync(cancellationToken);
+        using (DiagnosticContextStorage.Measure($"{nameof(ProductCategoryRepository)}" +
+                                                $".{nameof(GetProductCategoryByCategoryId)}"))
+            return Set
+                .Where(e => e.CategoryId == categoryId)
+                .ToListAsync(cancellationToken);
     }
 }

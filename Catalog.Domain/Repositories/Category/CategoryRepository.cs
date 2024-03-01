@@ -14,42 +14,58 @@ public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepos
 
     public async Task<IList<CategoryEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await Set
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetAllAsync)}"))
+            return await Set
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
     }
 
     public async Task<IList<CategoryEntity>> GetByIdsAsync(
         IEnumerable<int> ids, CancellationToken cancellationToken)
     {
-        return await Set
-            .AsNoTracking()
-            .Where(c => ids.Contains(c.Id))
-            .ToListAsync(cancellationToken);
+        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetByIdsAsync)}"))
+            return await Set
+                .AsNoTracking()
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync(cancellationToken);
     }
     
     public async Task<CategoryEntity?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken)
     {
-        return await Set
-            .AsNoTracking()
-            .Where(c => c.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
+        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetByIdAsync)}"))
+            return await Set
+                .AsNoTracking()
+                .Where(c => c.Id == id)
+                .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<CategoryEntity?> GetByNameAsync(
         string name,
         CancellationToken cancellationToken)
     {
-        return await Set
-            .AsNoTracking()
-            .Where(c => c.Name == name)
-            .FirstOrDefaultAsync(cancellationToken);
+        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetByNameAsync)}"))
+            return await Set
+                .AsNoTracking()
+                .Where(c => c.Name == name)
+                .FirstOrDefaultAsync(cancellationToken);
     }
 
     public void DeleteById(int id)
     {
         Set.Remove(Set.First(c => c.Id == id));
+    }
+    
+    public async Task<IEnumerable<CategoryEntity>> GetAllPagedAsync(
+        int page, int pageSize, CancellationToken cancellationToken)
+    {
+        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetAllPagedAsync)}"))
+            return await Set
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
     }
 }

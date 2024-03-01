@@ -30,6 +30,17 @@ public class ProductService : IProductService
         _productUpdateProducer = productUpdateProducer;
     }
 
+    public async Task<List<Product>> GetAllPagedAsync(int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var productsEntities = await _unitOfWork
+            .ProductRepository
+            .GetAllPagedAsync(page, pageSize, cancellationToken);
+
+        return productsEntities.ToProducts().ToList();
+    }
+    
     public async Task<Product> GetProductByIdAsync(
         int id, CancellationToken cancellationToken)
     {

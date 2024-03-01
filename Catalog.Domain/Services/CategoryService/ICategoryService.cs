@@ -4,8 +4,10 @@ namespace Catalog.Domain.Services.CategoryService;
 
 public interface ICategoryService
 {
-    Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken);
-
+    Task<List<Category>> GetAllPagedAsync(int page,
+        int pageSize,
+        CancellationToken cancellationToken);
+    
     Task<Category?> GetCategoryByIdAsync(int id, CancellationToken cancellationToken);
 
     Task<Category> CreateCategoryAsync(

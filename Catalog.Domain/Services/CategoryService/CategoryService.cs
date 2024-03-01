@@ -4,7 +4,6 @@ using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Messaging.Producers.CategoryEventProducer;
-using MassTransit.KafkaIntegration;
 using Shared.Messaging.Events.Category;
 
 namespace Catalog.Domain.Services.CategoryService;
@@ -25,10 +24,15 @@ public class CategoryService : ICategoryService
         _categoryEventProducer = categoryEventProducer;
     }
 
-    public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken cancellationToken)
+    public async Task<List<Category>> GetAllPagedAsync(int page,
+        int pageSize,
+        CancellationToken cancellationToken)
     {
-        var categoryEntities = await _unitOfWork.CategoryRepository.GetAllAsync(cancellationToken);
-        return categoryEntities.ToCategories();
+        var categoriesEntities = await _unitOfWork
+            .CategoryRepository
+            .GetAllPagedAsync(page, pageSize, cancellationToken);
+
+        return categoriesEntities.ToCategories().ToList();
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id, CancellationToken cancellationToken)

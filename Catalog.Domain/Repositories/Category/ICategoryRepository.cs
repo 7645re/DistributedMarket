@@ -19,4 +19,7 @@ public interface ICategoryRepository : IRepository<CategoryEntity>
     Task<IList<CategoryEntity>> GetAllAsync(CancellationToken cancellationToken);
 
     void DeleteById(int id);
+
+    Task<IEnumerable<CategoryEntity>> GetAllPagedAsync(
+        int page, int pageSize, CancellationToken cancellationToken);
 }
