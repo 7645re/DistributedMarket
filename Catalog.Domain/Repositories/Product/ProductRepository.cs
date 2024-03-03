@@ -13,15 +13,15 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
     public ProductRepository(
         CatalogDbContext context,
         IProductCategoryRepository productCategoryRepository,
-        IDiagnosticContextStorage diagnosticContextStorage) 
-        : base(context, diagnosticContextStorage)
+        IDiagnosticContext diagnosticContext) 
+        : base(context, diagnosticContext)
     {
         _productCategoryRepository = productCategoryRepository;
     }
 
     public async Task<int> GetTotalCountAsync(CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetTotalCountAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetTotalCountAsync)}"))
             return await Set.CountAsync(cancellationToken);
     }
     
@@ -29,7 +29,7 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
         int id,
         CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetByIdAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetByIdAsync)}"))
             return await Set
                 .AsNoTracking()
                 .Where(e => e.Id == id)
@@ -40,7 +40,7 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
         int id,
         CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetByIdWithCategoriesAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetByIdWithCategoriesAsync)}"))
             return await Set
                 .AsNoTracking()
                 .Where(p => p.Id == id)
@@ -52,7 +52,7 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
         string name,
         CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetByNameAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetByNameAsync)}"))
             return await Set
                 .AsNoTracking()
                 .Where(p => p.Name == name)
@@ -62,7 +62,7 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
     public async Task<List<ProductEntityCategoryEntity>> GetByCategoryIdAsync(
         int categoryId, CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetByCategoryIdAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetByCategoryIdAsync)}"))
             return await Context
                 .ProductCategory
                 .Where(x => x.CategoryId == categoryId)
@@ -73,7 +73,7 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
     public async Task<List<ProductEntityCategoryEntity>> GetByCategoriesIdsAsync(
         IEnumerable<int> categoryId, CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetByCategoriesIdsAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetByCategoriesIdsAsync)}"))
             return await Context
                 .ProductCategory
                 .Where(x => categoryId.Contains(x.CategoryId))
@@ -89,7 +89,7 @@ public class ProductRepository : BaseRepository<ProductEntity>, IProductReposito
     public async Task<IEnumerable<ProductEntity>> GetAllPagedAsync(
         int page, int pageSize, CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductRepository)}.{nameof(GetAllPagedAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(ProductRepository)}.{nameof(GetAllPagedAsync)}"))
             return await Set
                 .AsNoTracking()
                 .OrderBy(x => x.Id)

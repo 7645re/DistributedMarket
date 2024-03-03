@@ -12,25 +12,25 @@ public class UnitOfWork : IUnitOfWork
     public IProductRepository ProductRepository { get; }
     public IProductCategoryRepository ProductCategoryRepository { get; }
     private readonly CatalogDbContext _context;
-    private readonly IDiagnosticContextStorage _diagnosticContextStorage;
+    private readonly IDiagnosticContext _diagnosticContext;
     
     public UnitOfWork(
         CatalogDbContext context,
         ICategoryRepository categoryRepository,
         IProductRepository productRepository,
         IProductCategoryRepository productCategoryRepository,
-        IDiagnosticContextStorage diagnosticContextStorage)
+        IDiagnosticContext diagnosticContext)
     {
         _context = context;
         CategoryRepository = categoryRepository;
         ProductRepository = productRepository;
         ProductCategoryRepository = productCategoryRepository;
-        _diagnosticContextStorage = diagnosticContextStorage;
+        _diagnosticContext = diagnosticContext;
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(UnitOfWork)}.{nameof(SaveChangesAsync)}"))
+        using (_diagnosticContext.Measure($"{nameof(UnitOfWork)}.{nameof(SaveChangesAsync)}"))
             return await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -53,7 +53,7 @@ public class UnitOfWork : IUnitOfWork
         CancellationToken cancellationToken,
         Action<DbUpdateException>? onException)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(UnitOfWork)}.{nameof(ExecuteInTransactionAsync)}"))
+        using (_diagnosticContext.Measure($"{nameof(UnitOfWork)}.{nameof(ExecuteInTransactionAsync)}"))
         {
             try
             {

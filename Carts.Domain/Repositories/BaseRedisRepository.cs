@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
+using Shared.DiagnosticContext;
 
 namespace Carts.Domain.Repositories;
 
@@ -7,7 +8,8 @@ public abstract class BaseRedisRepository<T>
 {
     private readonly IDistributedCache _cache;
 
-    protected BaseRedisRepository(IDistributedCache cache)
+    protected BaseRedisRepository(
+        IDistributedCache cache)
     {
         _cache = cache;
     }
@@ -19,7 +21,7 @@ public abstract class BaseRedisRepository<T>
         if (entity is null)
             return default;
 
-        return JsonSerializer.Deserialize<T>(entity);
+        return JsonSerializer.Deserialize<T>(entity);    
     }
 
     public virtual async Task CreateAsync(
@@ -33,12 +35,12 @@ public abstract class BaseRedisRepository<T>
         await _cache.SetStringAsync(redisKey, serializedEntity, new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = expiry
-        }, cancellationToken);
+        }, cancellationToken);    
     }
 
     public virtual async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
         var redisKey = $"{typeof(T).Name}:{key}";
-        await _cache.RemoveAsync(redisKey, cancellationToken);
+        await _cache.RemoveAsync(redisKey, cancellationToken);    
     }
 }

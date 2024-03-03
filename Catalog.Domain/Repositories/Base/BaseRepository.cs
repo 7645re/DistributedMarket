@@ -9,14 +9,14 @@ public abstract class BaseRepository<TEntity> where TEntity : class
 
     protected DbSet<TEntity> Set { get; set; }
     
-    protected IDiagnosticContextStorage DiagnosticContextStorage { get; set; }
+    protected IDiagnosticContext DiagnosticContext { get; set; }
     
     protected BaseRepository(
         CatalogDbContext context,
-        IDiagnosticContextStorage diagnosticContextStorage)
+        IDiagnosticContext diagnosticContext)
     {
-        DiagnosticContextStorage = diagnosticContextStorage;
-        using (DiagnosticContextStorage.Measure($"{GetType().Name}.ctor"))
+        DiagnosticContext = diagnosticContext;
+        using (DiagnosticContext.Measure($"{GetType().Name}.ctor"))
         {
             Context = context;
             Set = Context.Set<TEntity>();

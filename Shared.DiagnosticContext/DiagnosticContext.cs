@@ -3,7 +3,7 @@ using Prometheus;
 
 namespace Shared.DiagnosticContext;
 
-public class DiagnosticContextStorage : IDiagnosticContextStorage
+public class DiagnosticContext : IDiagnosticContext
 {
     private readonly Counter _metricCounterDuration = Metrics.CreateCounter(
         "method_execution_duration",

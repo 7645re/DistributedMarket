@@ -14,14 +14,14 @@ public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
     
-    private readonly IDiagnosticContextStorage _diagnosticContextStorage;
+    private readonly IDiagnosticContext _diagnosticContext;
     
     public ProductController(
         IProductService productService,
-        IDiagnosticContextStorage diagnosticContextStorage)
+        IDiagnosticContext diagnosticContext)
     {
         _productService = productService;
-        _diagnosticContextStorage = diagnosticContextStorage;
+        _diagnosticContext = diagnosticContext;
     }
 
     [HttpGet]
@@ -30,7 +30,7 @@ public class ProductController : ControllerBase
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(ProductController)}.{nameof(GetProducts)}"))
+        using (_diagnosticContext.Measure($"{nameof(ProductController)}.{nameof(GetProducts)}"))
         {
             var products = await _productService.GetAllPagedAsync(page, pageSize, cancellationToken);
             return Ok(products);
@@ -40,7 +40,7 @@ public class ProductController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(ProductController)}.{nameof(GetProductById)}"))
+        using (_diagnosticContext.Measure($"{nameof(ProductController)}.{nameof(GetProductById)}"))
         {
             var products = await _productService.GetProductByIdAsync(id, cancellationToken);
             return Ok(products.ToProductGetResponse());
@@ -52,7 +52,7 @@ public class ProductController : ControllerBase
         [FromBody] ProductCreateRequest productCreateRequest,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(ProductController)}.{nameof(CreateProduct)}"))
+        using (_diagnosticContext.Measure($"{nameof(ProductController)}.{nameof(CreateProduct)}"))
         {
             var createdProduct = await _productService.CreateProductAsync(
                 productCreateRequest.ToProductCreate(),
@@ -66,7 +66,7 @@ public class ProductController : ControllerBase
         int id,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(ProductController)}.{nameof(DeleteProductById)}"))
+        using (_diagnosticContext.Measure($"{nameof(ProductController)}.{nameof(DeleteProductById)}"))
         {
             await _productService.DeleteProductByIdAsync(id, cancellationToken);
             return Ok();
@@ -79,7 +79,7 @@ public class ProductController : ControllerBase
         [FromBody] ProductUpdateRequest productUpdateRequest,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(ProductController)}.{nameof(UpdateProductById)}"))
+        using (_diagnosticContext.Measure($"{nameof(ProductController)}.{nameof(UpdateProductById)}"))
         {
             var result = await _productService.UpdateProductAsync(
                 productUpdateRequest.ToProductUpdate(id),

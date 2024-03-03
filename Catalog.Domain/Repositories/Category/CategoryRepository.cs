@@ -7,14 +7,14 @@ namespace Catalog.Domain.Repositories.Category;
 
 public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepository
 {
-    public CategoryRepository(CatalogDbContext context, IDiagnosticContextStorage diagnosticContextStorage) 
-        : base(context, diagnosticContextStorage)
+    public CategoryRepository(CatalogDbContext context, IDiagnosticContext diagnosticContext) 
+        : base(context, diagnosticContext)
     {
     }
 
     public async Task<IList<CategoryEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetAllAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(CategoryRepository)}.{nameof(GetAllAsync)}"))
             return await Set
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
@@ -23,7 +23,7 @@ public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepos
     public async Task<IList<CategoryEntity>> GetByIdsAsync(
         IEnumerable<int> ids, CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetByIdsAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(CategoryRepository)}.{nameof(GetByIdsAsync)}"))
             return await Set
                 .AsNoTracking()
                 .Where(c => ids.Contains(c.Id))
@@ -34,7 +34,7 @@ public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepos
         int id,
         CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetByIdAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(CategoryRepository)}.{nameof(GetByIdAsync)}"))
             return await Set
                 .AsNoTracking()
                 .Where(c => c.Id == id)
@@ -45,7 +45,7 @@ public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepos
         string name,
         CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetByNameAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(CategoryRepository)}.{nameof(GetByNameAsync)}"))
             return await Set
                 .AsNoTracking()
                 .Where(c => c.Name == name)
@@ -60,7 +60,7 @@ public class CategoryRepository : BaseRepository<CategoryEntity>, ICategoryRepos
     public async Task<IEnumerable<CategoryEntity>> GetAllPagedAsync(
         int page, int pageSize, CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(CategoryRepository)}.{nameof(GetAllPagedAsync)}"))
+        using (DiagnosticContext.Measure($"{nameof(CategoryRepository)}.{nameof(GetAllPagedAsync)}"))
             return await Set
                 .AsNoTracking()
                 .OrderBy(x => x.Id)

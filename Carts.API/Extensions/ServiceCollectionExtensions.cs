@@ -14,13 +14,20 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddTransient<ICartService, CartService>();
+        serviceCollection.Decorate<ICartService, CartServiceDecorator>();
         return serviceCollection;
     }
 
     public static IServiceCollection AddRepositories(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICartRepository, CartRepository>();
+        serviceCollection.Decorate<ICartRepository, CartRepositoryMetricDecorator>();
+        serviceCollection.Decorate<ICartRepository, CartRepositoryRetryDecorator>();
+        
         serviceCollection.AddScoped<ICartsByProductRepository, CartsByProductRepository>();
+        serviceCollection.Decorate<ICartsByProductRepository, CartsByProductRepositoryRetryDecorator>();
+        serviceCollection.Decorate<ICartsByProductRepository, CartsByProductRepositoryMetricDecorator>();
+        
         return serviceCollection;
     }
     

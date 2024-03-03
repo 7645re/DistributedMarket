@@ -8,19 +8,19 @@ public class CategoryValidatorDecorator : ICategoryValidator
 {
     private readonly ICategoryValidator _categoryValidator;
     
-    private readonly IDiagnosticContextStorage _diagnosticContextStorage;
+    private readonly IDiagnosticContext _diagnosticContext;
 
     public CategoryValidatorDecorator(
         ICategoryValidator categoryValidator,
-        IDiagnosticContextStorage diagnosticContextStorage)
+        IDiagnosticContext diagnosticContext)
     {
         _categoryValidator = categoryValidator;
-        _diagnosticContextStorage = diagnosticContextStorage;
+        _diagnosticContext = diagnosticContext;
     }
 
     public async Task ValidateAsync(CategoryCreate categoryCreate, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryValidatorDecorator)}.{nameof(ValidateAsync)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryValidatorDecorator)}.{nameof(ValidateAsync)}"))
             await _categoryValidator.ValidateAsync(categoryCreate, cancellationToken);
     }
 
@@ -29,7 +29,7 @@ public class CategoryValidatorDecorator : ICategoryValidator
         CategoryUpdate categoryUpdate,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryValidatorDecorator)}.{nameof(ValidateAsync)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryValidatorDecorator)}.{nameof(ValidateAsync)}"))
             await _categoryValidator.ValidateAsync(categoryEntity, categoryUpdate, cancellationToken);
     }
 }

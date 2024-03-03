@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IDiagnosticContextStorage, DiagnosticContextStorage>();
+builder.Services.AddScoped<IDiagnosticContext, DiagnosticContext>();
 builder.Services.AddDbContext(builder);
 builder.Services.AddKafka(builder);
 builder.Services.AddRepositories();

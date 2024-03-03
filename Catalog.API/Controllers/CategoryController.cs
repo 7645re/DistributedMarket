@@ -14,14 +14,14 @@ public class CategoryController : ControllerBase
 {
     private readonly ICategoryService _categoryService;
     
-    private readonly IDiagnosticContextStorage _diagnosticContextStorage;
+    private readonly IDiagnosticContext _diagnosticContext;
 
     public CategoryController(
         ICategoryService categoryService,
-        IDiagnosticContextStorage diagnosticContextStorage)
+        IDiagnosticContext diagnosticContext)
     {
         _categoryService = categoryService;
-        _diagnosticContextStorage = diagnosticContextStorage;
+        _diagnosticContext = diagnosticContext;
     }
 
     [HttpGet]
@@ -30,7 +30,7 @@ public class CategoryController : ControllerBase
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryController)}.{nameof(GetCategories)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryController)}.{nameof(GetCategories)}"))
         {
             var products = await _categoryService.GetAllPagedAsync(page, pageSize, cancellationToken);
             return Ok(products);
@@ -40,7 +40,7 @@ public class CategoryController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetCategoryById(int id, CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryController)}.{nameof(GetCategoryById)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryController)}.{nameof(GetCategoryById)}"))
         {
             var category = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
             return Ok(category);
@@ -52,7 +52,7 @@ public class CategoryController : ControllerBase
         [FromBody] CategoryCreateRequest categoryCreateRequest,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryController)}.{nameof(CreateCategory)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryController)}.{nameof(CreateCategory)}"))
         {
             var category = await _categoryService.CreateCategoryAsync(
                 categoryCreateRequest.ToCategoryCreate(),
@@ -67,7 +67,7 @@ public class CategoryController : ControllerBase
         [FromBody] CategoryUpdateRequest categoryUpdateRequest,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryController)}.{nameof(UpdateCategoryById)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryController)}.{nameof(UpdateCategoryById)}"))
         {
             var category = await _categoryService.UpdateCategoryAsync(
                 categoryUpdateRequest.ToCategoryUpdate(id),
@@ -81,7 +81,7 @@ public class CategoryController : ControllerBase
         int id,
         CancellationToken cancellationToken)
     {
-        using (_diagnosticContextStorage.Measure($"{nameof(CategoryController)}.{nameof(DeleteCategoryById)}"))
+        using (_diagnosticContext.Measure($"{nameof(CategoryController)}.{nameof(DeleteCategoryById)}"))
         {
             await _categoryService.DeleteCategoryByIdAsync(id, cancellationToken);
             return Ok();

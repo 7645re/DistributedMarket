@@ -1,6 +1,6 @@
 ﻿namespace Shared.DiagnosticContext;
 
-public interface IDiagnosticContextStorage
+public interface IDiagnosticContext
 {
     IDisposable Measure(string key);
 }

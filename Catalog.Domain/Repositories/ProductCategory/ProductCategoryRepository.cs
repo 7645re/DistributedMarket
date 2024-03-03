@@ -8,8 +8,8 @@ namespace Catalog.Domain.Repositories.ProductCategory;
 public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEntity>,
     IProductCategoryRepository
 {
-    public ProductCategoryRepository(CatalogDbContext context, IDiagnosticContextStorage diagnosticContextStorage) 
-        : base(context, diagnosticContextStorage)
+    public ProductCategoryRepository(CatalogDbContext context, IDiagnosticContext diagnosticContext) 
+        : base(context, diagnosticContext)
     {
     }
 
@@ -33,7 +33,7 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
         int categoryId,
         CancellationToken cancellationToken)
     {
-        using (DiagnosticContextStorage.Measure($"{nameof(ProductCategoryRepository)}" +
+        using (DiagnosticContext.Measure($"{nameof(ProductCategoryRepository)}" +
                                                 $".{nameof(GetProductCategoryByCategoryId)}"))
             return Set
                 .Where(e => e.CategoryId == categoryId)
