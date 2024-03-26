@@ -8,13 +8,14 @@ using Catalog.Domain.Services.ProductService;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Category;
 using Catalog.Domain.Validators.Product;
-using Catalog.Messaging.Events;
-using Catalog.Messaging.Events.Category;
-using Catalog.Messaging.Events.Product;
-using Catalog.Messaging.Options;
+using Catalog.Messaging.Producers.CategoryEventProducer;
+using Catalog.Messaging.Producers.ProductEventProducer;
 using MassTransit;
 using MassTransit.KafkaIntegration;
 using Microsoft.EntityFrameworkCore;
+using Shared.Messaging.Events.Category;
+using Shared.Messaging.Events.Product;
+using Shared.Messaging.Options;
 
 namespace Catalog.API.Extensions;
 
@@ -23,7 +24,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddTransient<IProductService, ProductService>();
+        serviceCollection.Decorate<IProductService, ProductServiceDecorator>();
+
         serviceCollection.AddTransient<ICategoryService, CategoryService>();
+        serviceCollection.Decorate<ICategoryService, CategoryServiceDecorator>();
+
         return serviceCollection;
     }
 
@@ -36,7 +41,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddValidators(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IProductValidator, ProductValidator>();
+        serviceCollection.Decorate<IProductValidator, ProductValidatorDecorator>();
+
         serviceCollection.AddScoped<ICategoryValidator, CategoryValidator>();
+        serviceCollection.Decorate<ICategoryValidator, CategoryValidatorDecorator>();
         return serviceCollection;
     }
 
@@ -69,7 +77,7 @@ public static class ServiceCollectionExtensions
             .GetSection("Kafka")
             .Get<KafkaOptions>()!;
 
-        return serviceCollection
+        serviceCollection
             .AddMassTransitHostedService()
             .AddMassTransit(x =>
             {
@@ -92,5 +100,13 @@ public static class ServiceCollectionExtensions
                     });
                 });
             });
+
+        serviceCollection.AddScoped<ICategoryEventProducer, CategoryEventProducer>();
+        serviceCollection.Decorate<ICategoryEventProducer, CategoryEventProducerDecorator>();
+        
+        serviceCollection.AddScoped<IProductEventProducer, ProductEventProducer>();
+        serviceCollection.Decorate<IProductEventProducer, ProductEventProducerDecorator>();
+        
+        return serviceCollection;
     }
 }

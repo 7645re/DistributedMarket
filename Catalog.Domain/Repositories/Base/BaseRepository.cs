@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Shared.DiagnosticContext;
 
 namespace Catalog.Domain.Repositories.Base;
 
@@ -8,10 +9,18 @@ public abstract class BaseRepository<TEntity> where TEntity : class
 
     protected DbSet<TEntity> Set { get; set; }
     
-    protected BaseRepository(CatalogDbContext context)
+    protected IDiagnosticContext DiagnosticContext { get; set; }
+    
+    protected BaseRepository(
+        CatalogDbContext context,
+        IDiagnosticContext diagnosticContext)
     {
-        Context = context;
-        Set = Context.Set<TEntity>();
+        DiagnosticContext = diagnosticContext;
+        using (DiagnosticContext.Measure($"{GetType().Name}.ctor"))
+        {
+            Context = context;
+            Set = Context.Set<TEntity>();
+        }
     }
     
     public TEntity Add(TEntity entity)

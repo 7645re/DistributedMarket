@@ -3,10 +3,8 @@ using Catalog.Domain.Mappers;
 using Catalog.Domain.Models;
 using Catalog.Domain.UnitOfWork;
 using Catalog.Domain.Validators.Product;
-using Catalog.Messaging.Events;
-using Catalog.Messaging.Events.Product;
-using MassTransit;
 using MassTransit.KafkaIntegration;
+using Shared.Messaging.Events.Product;
 
 namespace Catalog.Domain.Services.ProductService;
 
@@ -32,6 +30,17 @@ public class ProductService : IProductService
         _productUpdateProducer = productUpdateProducer;
     }
 
+    public async Task<List<Product>> GetAllPagedAsync(int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var productsEntities = await _unitOfWork
+            .ProductRepository
+            .GetAllPagedAsync(page, pageSize, cancellationToken);
+
+        return productsEntities.ToProducts().ToList();
+    }
+    
     public async Task<Product> GetProductByIdAsync(
         int id, CancellationToken cancellationToken)
     {

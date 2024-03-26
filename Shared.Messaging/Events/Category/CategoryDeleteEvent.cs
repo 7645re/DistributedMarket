@@ -1,4 +1,4 @@
-namespace Catalog.Messaging.Events.Category;
+namespace Shared.Messaging.Events.Category;
 
 public class CategoryDeleteEvent
 {

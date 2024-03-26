@@ -1,13 +1,15 @@
 using Catalog.Domain.Models;
 using Catalog.Domain.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
+using Shared.DiagnosticContext;
 
 namespace Catalog.Domain.Repositories.ProductCategory;
 
 public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEntity>,
     IProductCategoryRepository
 {
-    public ProductCategoryRepository(CatalogDbContext context) : base(context)
+    public ProductCategoryRepository(CatalogDbContext context, IDiagnosticContext diagnosticContext) 
+        : base(context, diagnosticContext)
     {
     }
 
@@ -31,8 +33,10 @@ public class ProductCategoryRepository : BaseRepository<ProductEntityCategoryEnt
         int categoryId,
         CancellationToken cancellationToken)
     {
-        return Set
-            .Where(e => e.CategoryId == categoryId)
-            .ToListAsync(cancellationToken);
+        using (DiagnosticContext.Measure($"{nameof(ProductCategoryRepository)}" +
+                                                $".{nameof(GetProductCategoryByCategoryId)}"))
+            return Set
+                .Where(e => e.CategoryId == categoryId)
+                .ToListAsync(cancellationToken);
     }
 }

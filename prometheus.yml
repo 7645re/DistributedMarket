@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "prometheus"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["host.docker.internal:9090"]
+
+  - job_name: "catalog.api"
+    static_configs:
+      - targets: ["host.docker.internal:80"]
+
+  - job_name: "catalog.api.host_machine"
+    static_configs:
+      - targets: ["host.docker.internal:5125"]
+          
+  - job_name: "carts.api"
+    static_configs:
+      - targets: ["host.docker.internal:82"]
+
+  - job_name: "carts.api.host_machine"
+    static_configs:
+      - targets: ["host.docker.internal:5213"]

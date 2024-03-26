@@ -1,7 +1,5 @@
 using Catalog.API.Dto.Product;
 using Catalog.Domain.Dto.Product;
-using Catalog.Domain.Models;
-using Catalog.Messaging.Events;
 
 namespace Catalog.API.Mappers;
 

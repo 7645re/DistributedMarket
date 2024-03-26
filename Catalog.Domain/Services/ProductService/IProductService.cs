@@ -1,9 +1,14 @@
 using Catalog.Domain.Dto.Product;
+using Catalog.Domain.Repositories;
 
 namespace Catalog.Domain.Services.ProductService;
 
 public interface IProductService
 {
+    Task<List<Product>> GetAllPagedAsync(int page,
+        int pageSize,
+        CancellationToken cancellationToken);
+    
     Task<Product> GetProductByIdAsync(int id, CancellationToken cancellationToken);
 
     Task<IEnumerable<Product>> GetProductByCategoryIdAsync(int categoryId, CancellationToken cancellationToken);

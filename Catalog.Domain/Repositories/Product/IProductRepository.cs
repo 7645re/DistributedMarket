@@ -23,5 +23,10 @@ public interface IProductRepository : IRepository<ProductEntity>
     Task<List<ProductEntityCategoryEntity>> GetByCategoriesIdsAsync(
         IEnumerable<int> categoryId, CancellationToken cancellationToken);
 
+    Task<int> GetTotalCountAsync(CancellationToken cancellationToken);
+
     void DeleteById(int id);
+
+    Task<IEnumerable<ProductEntity>> GetAllPagedAsync(
+        int page, int pageSize, CancellationToken cancellationToken);
 }

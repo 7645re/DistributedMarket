@@ -3,9 +3,9 @@ using Carts.Domain.Repositories.Cart;
 using Carts.Domain.Repositories.CartByProduct;
 using Carts.Domain.Services.CartService;
 using Carts.Messaging.Consumers;
-using Catalog.Messaging.Events.Product;
-using Catalog.Messaging.Options;
 using MassTransit;
+using Shared.Messaging.Events.Product;
+using Shared.Messaging.Options;
 
 namespace Carts.API.Extensions;
 
@@ -14,13 +14,20 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddTransient<ICartService, CartService>();
+        serviceCollection.Decorate<ICartService, CartServiceDecorator>();
         return serviceCollection;
     }
 
     public static IServiceCollection AddRepositories(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICartRepository, CartRepository>();
+        serviceCollection.Decorate<ICartRepository, CartRepositoryMetricDecorator>();
+        serviceCollection.Decorate<ICartRepository, CartRepositoryRetryDecorator>();
+        
         serviceCollection.AddScoped<ICartsByProductRepository, CartsByProductRepository>();
+        serviceCollection.Decorate<ICartsByProductRepository, CartsByProductRepositoryRetryDecorator>();
+        serviceCollection.Decorate<ICartsByProductRepository, CartsByProductRepositoryMetricDecorator>();
+        
         return serviceCollection;
     }
     
@@ -43,7 +50,7 @@ public static class ServiceCollectionExtensions
             .GetSection("Kafka")
             .Get<KafkaOptions>()!;
 
-        return serviceCollection
+        serviceCollection
             .AddMassTransitHostedService()
             .AddMassTransit(x =>
             {
@@ -67,6 +74,8 @@ public static class ServiceCollectionExtensions
                     });
                 });
             });
+
+        return serviceCollection;
     }
 
     public static IServiceCollection AddOptions(this IServiceCollection serviceCollection,

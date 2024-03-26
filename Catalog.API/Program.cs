@@ -1,5 +1,8 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
+using MassTransit.KafkaIntegration;
+using Prometheus;
+using Shared.DiagnosticContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IDiagnosticContext, DiagnosticContext>();
 builder.Services.AddDbContext(builder);
 builder.Services.AddKafka(builder);
 builder.Services.AddRepositories();
@@ -22,11 +26,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpMetrics();
+app.MapMetrics();
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
